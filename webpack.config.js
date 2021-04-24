@@ -7,7 +7,7 @@ const TerserPlugin = require('terser-webpack-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 
 // Paths
-const entry = './src/js/app.js';
+const entry = './src/js/app.ts';
 const includePath = path.join(__dirname, 'src/js');
 const nodeModulesPath = path.join(__dirname, 'node_modules');
 
@@ -15,6 +15,7 @@ let outputPath = path.join(__dirname, 'src/public/js');
 let publicPath = '/js/';
 
 module.exports = env => {
+  console.log(env,'Environment');
   // Dev environment
   let devtool = 'inline-source-map';
   let mode = 'development';
@@ -99,7 +100,12 @@ module.exports = env => {
             'postcss-loader',
             'sass-loader',
           ],
-        }
+        },
+        {
+          test: /\.tsx?$/,
+          use: 'ts-loader',
+          exclude: /node_modules/,
+        },
       ]
     },
 
@@ -113,7 +119,7 @@ module.exports = env => {
       ],
 
       // extensions that are used
-      extensions: ['.js', '.json'],
+      extensions: ['.js', '.json', '.ts'],
     },
 
     performance: {
@@ -141,7 +147,7 @@ module.exports = env => {
       new MiniCssExtractPlugin({
         filename: '../css/[name].css',
         chunkFilename: '../css/[id].css'
-      })
+      }),
     ),
 
     optimization: {

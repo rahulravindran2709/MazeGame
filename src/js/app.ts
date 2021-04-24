@@ -6,11 +6,13 @@ import Main from './app/main';
 import './../css/app.scss';
 
 // Check environment and set the Config helper
-if(__ENV__ === 'dev') {
-  console.log('----- RUNNING IN DEV ENVIRONMENT! -----');
+// if(global.process.env.__ENV__ === 'dev') {
+//   console.log('----- RUNNING IN DEV ENVIRONMENT! -----');
 
-  Config.isDev = true;
-}
+//   Config.isDev = true;
+// }
+
+console.log(global,'Global')
 
 function init() {
   // Check for webGL capabilities
