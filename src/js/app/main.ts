@@ -15,6 +15,8 @@ import Stats from './helpers/stats';
 import Texture from './model/texture';
 import Geometry from './components/geometry';
 import  '../utils/orbitControls';
+import { BufferGeometryUtils } from '../utils/bufferGeometryUtils';
+import { Object3D } from 'three';
 
 
 
@@ -54,7 +56,6 @@ export default class Main {
     
     // Main renderer constructor
     this.renderer = new Renderer(this.scene, container);
-    const aspect = window.innerWidth / window.innerHeight;
     this.camera = new Camera(this.renderer.threeRenderer);
     this.scene.add(this.camera.threeCamera);
     this.controls = new Controls(this.camera.threeCamera, container);
@@ -83,12 +84,38 @@ export default class Main {
       this.scene.add(ballMesh);
       const boxGeometry = new THREE.BoxGeometry(1, 1, 1, 1, 1, 1);
       const boxMaterial = this.material.makePhongMaterial(brickTexture);
-      const boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
+      const originHelper = new Object3D();
+      const positionHelper = new Object3D();
+      positionHelper.position.x = 2;
+      positionHelper.position.y = 2;
+      positionHelper.position.z = 0;
+      positionHelper.add(originHelper);
+      originHelper.updateWorldMatrix(true,false);
+      boxGeometry.applyMatrix4(originHelper.matrixWorld);
+      // const boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
+      positionHelper.position.x = 2;
+      positionHelper.position.y = 3;
+      positionHelper.position.z = 0;
+      originHelper.updateWorldMatrix(true,false);
+      const secondBoxGeometry = new THREE.BoxGeometry(1, 1, 1, 1, 1, 1);
+      secondBoxGeometry.applyMatrix4(originHelper.matrixWorld);
+      // boxMesh.position.x = 2;
+      // boxMesh.position.y = 2;
+      // boxMesh.position.z = 0.5;
+      //boxMesh.updateMatrix();
+      //this.scene.add(boxMesh);
+      
+      // const secondMesh = new THREE.Mesh(secondBoxGeometry, boxMaterial);
 
-      boxMesh.position.x = 2;
-      boxMesh.position.y = 2;
-      boxMesh.position.z = 0.5;
-      this.scene.add(boxMesh);
+      // secondMesh.position.x = 2;
+      // secondMesh.position.y = 4;
+      // secondMesh.position.z = 0.5;
+      // secondMesh.updateMatrix();
+      //this.scene.add(secondMesh);
+      const mergedGeom = BufferGeometryUtils.mergeBufferGeometries([boxGeometry,secondBoxGeometry]);
+      const mergedMesh = new THREE.Mesh(mergedGeom, boxMaterial);
+      mergedMesh.position.z = 0.5;
+      this.scene.add(mergedMesh);
 
       //this.maze.dimension = this.mazeDimension;
       //this.maze[this.mazeDimension -1][this.mazeDimension -2] = false;
@@ -189,7 +216,6 @@ export default class Main {
 
     // Delta time is sometimes needed for certain updates
     //const delta = this.clock.getDelta();
-
     // Call any vendor or module frame updates here
     TWEEN.update();
     //this.controls.threeControls.update();

@@ -12,7 +12,7 @@ import {
 
 class BufferGeometryUtils {
 
-	static computeTangents(geometry) {
+	static computeTangents(geometry: THREE.BufferGeometry) {
 
 		geometry.computeTangents();
 		console.warn('THREE.BufferGeometryUtils: .computeTangents() has been removed. Use BufferGeometry.computeTangents() instead.');
@@ -31,8 +31,8 @@ class BufferGeometryUtils {
 		const attributesUsed = new Set(Object.keys(geometries[0].attributes));
 		const morphAttributesUsed = new Set(Object.keys(geometries[0].morphAttributes));
 
-		const attributes = {};
-		const morphAttributes = {};
+		const attributes: Record<string, Array<THREE.BufferAttribute | THREE.InterleavedBufferAttribute>> = {};
+		const morphAttributes: Record<string, Array<Array<THREE.BufferAttribute | THREE.InterleavedBufferAttribute>>> = {};
 
 		const morphTargetsRelative = geometries[0].morphTargetsRelative;
 
@@ -224,7 +224,7 @@ class BufferGeometryUtils {
 	 * @param {Array<BufferAttribute>} attributes
 	 * @return {BufferAttribute}
 	 */
-	static mergeBufferAttributes(attributes) {
+	static mergeBufferAttributes(attributes: Array<BufferAttribute | InterleavedBufferAttribute>) {
 
 		let TypedArray;
 		let itemSize;
@@ -235,7 +235,7 @@ class BufferGeometryUtils {
 
 			const attribute = attributes[i];
 
-			if (attribute.isInterleavedBufferAttribute) {
+			if ((attribute as InterleavedBufferAttribute).isInterleavedBufferAttribute) {
 
 				console.error('THREE.BufferGeometryUtils: .mergeBufferAttributes() failed. InterleavedBufferAttributes are not supported.');
 				return null;
@@ -269,7 +269,7 @@ class BufferGeometryUtils {
 			arrayLength += attribute.array.length;
 
 		}
-
+		//@ts-ignore
 		const array = new TypedArray(arrayLength);
 		let offset = 0;
 
@@ -289,7 +289,7 @@ class BufferGeometryUtils {
 	 * @param {Array<BufferAttribute>} attributes
 	 * @return {Array<InterleavedBufferAttribute>}
 	 */
-	static interleaveAttributes(attributes) {
+	static interleaveAttributes(attributes: Array<BufferAttribute>) {
 
 		// Interleaves the provided attributes into an InterleavedBuffer and returns
 		// a set of InterleavedBufferAttributes for each attribute
@@ -316,6 +316,7 @@ class BufferGeometryUtils {
 		}
 
 		// Create the set of buffer attributes
+		//@ts-ignore
 		const interleavedBuffer = new InterleavedBuffer(new TypedArray(arrayLength), stride);
 		let offset = 0;
 		const res = [];
@@ -337,7 +338,7 @@ class BufferGeometryUtils {
 			for (let c = 0; c < count; c++) {
 
 				for (let k = 0; k < itemSize; k++) {
-
+					//@ts-ignore
 					iba[setters[k]](c, attribute[getters[k]](c));
 
 				}
@@ -354,7 +355,7 @@ class BufferGeometryUtils {
 	 * @param {Array<BufferGeometry>} geometry
 	 * @return {number}
 	 */
-	static estimateBytesUsed(geometry) {
+	static estimateBytesUsed(geometry: BufferGeometry) {
 
 		// Return the estimated memory used by this geometry in bytes
 		// Calculate using itemSize, count, and BYTES_PER_ELEMENT to account
@@ -363,11 +364,13 @@ class BufferGeometryUtils {
 		for (const name in geometry.attributes) {
 
 			const attr = geometry.getAttribute(name);
+			//@ts-ignore
 			mem += attr.count * attr.itemSize * attr.array.BYTES_PER_ELEMENT;
 
 		}
 
 		const indices = geometry.getIndex();
+		//@ts-ignore
 		mem += indices ? indices.count * indices.itemSize * indices.array.BYTES_PER_ELEMENT : 0;
 		return mem;
 
@@ -378,13 +381,13 @@ class BufferGeometryUtils {
 	 * @param {number} tolerance
 	 * @return {BufferGeometry>}
 	 */
-	static mergeVertices(geometry, tolerance = 1e-4) {
+	static mergeVertices(geometry: BufferGeometry, tolerance = 1e-4) {
 
 		tolerance = Math.max(tolerance, Number.EPSILON);
 
 		// Generate an index buffer if the geometry doesn't have one, or optimize it
 		// if it's already available.
-		const hashToIndex = {};
+		const hashToIndex: Record<string, number> = {};
 		const indices = geometry.getIndex();
 		const positions = geometry.getAttribute('position');
 		const vertexCount = indices ? indices.count : positions.count;
@@ -394,8 +397,8 @@ class BufferGeometryUtils {
 
 		// attributes and new attribute arrays
 		const attributeNames = Object.keys(geometry.attributes);
-		const attrArrays = {};
-		const morphAttrsArrays = {};
+		const attrArrays: Record<string, Array<BufferAttribute>> = {};
+		const morphAttrsArrays: Record<string, Array<any>> = {};
 		const newIndices = [];
 		const getters = ['getX', 'getY', 'getZ', 'getW'];
 
@@ -408,7 +411,7 @@ class BufferGeometryUtils {
 
 			const morphAttr = geometry.morphAttributes[name];
 			if (morphAttr) {
-
+				//@ts-ignore
 				morphAttrsArrays[name] = new Array(morphAttr.length).fill().map(() => []);
 
 			}
@@ -433,6 +436,7 @@ class BufferGeometryUtils {
 				for (let k = 0; k < itemSize; k++) {
 
 					// double tilde truncates the decimal value
+					//@ts-ignore
 					hash += `${~ ~(attribute[getters[k]](index) * shiftMultiplier)},`;
 
 				}
@@ -460,12 +464,13 @@ class BufferGeometryUtils {
 					for (let k = 0; k < itemSize; k++) {
 
 						const getterFunc = getters[k];
-						newarray.push(attribute[getterFunc](index));
+						//@ts-ignore
+						newarray.push(attribute[getterFunc as 'getX'](index));
 
 						if (morphAttr) {
 
 							for (let m = 0, ml = morphAttr.length; m < ml; m++) {
-
+								//@ts-ignore
 								newMorphArrays[m].push(morphAttr[m][getterFunc](index));
 
 							}
@@ -491,7 +496,7 @@ class BufferGeometryUtils {
 
 			const name = attributeNames[i];
 			const oldAttribute = geometry.getAttribute(name);
-
+			//@ts-ignore
 			const buffer = new oldAttribute.array.constructor(attrArrays[name]);
 			const attribute = new BufferAttribute(buffer, oldAttribute.itemSize, oldAttribute.normalized);
 
@@ -503,7 +508,7 @@ class BufferGeometryUtils {
 				for (let j = 0; j < morphAttrsArrays[name].length; j++) {
 
 					const oldMorphAttribute = geometry.morphAttributes[name][j];
-
+					//@ts-ignore
 					const buffer = new oldMorphAttribute.array.constructor(morphAttrsArrays[name][j]);
 					const morphAttribute = new BufferAttribute(buffer, oldMorphAttribute.itemSize, oldMorphAttribute.normalized);
 					result.morphAttributes[name][j] = morphAttribute;
@@ -527,7 +532,7 @@ class BufferGeometryUtils {
 	 * @param {number} drawMode
 	 * @return {BufferGeometry>}
 	 */
-	static toTrianglesDrawMode(geometry, drawMode) {
+	static toTrianglesDrawMode(geometry: BufferGeometry, drawMode: number) {
 
 		if (drawMode === TrianglesDrawMode) {
 
@@ -638,7 +643,7 @@ class BufferGeometryUtils {
 	 * @param {Mesh | Line | Points} object An instance of Mesh, Line or Points.
 	 * @return {Object} An Object with original position/normal attributes and morphed ones.
 	 */
-	static computeMorphedAttributes(object) {
+	static computeMorphedAttributes(object: THREE.Mesh | THREE.Line | THREE.Points) {
 
 		if (object.geometry.isBufferGeometry !== true) {
 
@@ -660,14 +665,19 @@ class BufferGeometryUtils {
 		const _morphC = new Vector3();
 
 		function _calculateMorphedAttributeData(
-			object,
-			material,
-			attribute,
-			morphAttribute,
+			object: THREE.Mesh,
+			material: THREE.MeshBasicMaterial,
+			attribute: THREE.BufferAttribute,
+			morphAttribute: THREE.BufferAttribute[],
+			//@ts-ignore
 			morphTargetsRelative,
+			//@ts-ignore
 			a,
+			//@ts-ignore
 			b,
+			//@ts-ignore
 			c,
+			//@ts-ignore
 			modifiedAttributeArray
 		) {
 
@@ -716,11 +726,11 @@ class BufferGeometryUtils {
 
 			}
 
-			if (object.isSkinnedMesh) {
+			if ((object as THREE.SkinnedMesh).isSkinnedMesh) {
 
-				object.boneTransform(a, _vA);
-				object.boneTransform(b, _vB);
-				object.boneTransform(c, _vC);
+				(object as THREE.SkinnedMesh).boneTransform(a, _vA);
+				(object as THREE.SkinnedMesh).boneTransform(b, _vB);
+				(object as THREE.SkinnedMesh).boneTransform(c, _vC);
 
 			}
 
@@ -777,6 +787,7 @@ class BufferGeometryUtils {
 						c = index.getX(j + 2);
 
 						_calculateMorphedAttributeData(
+							//@ts-ignore
 							object,
 							groupMaterial,
 							positionAttribute,
@@ -787,6 +798,7 @@ class BufferGeometryUtils {
 						);
 
 						_calculateMorphedAttributeData(
+							//@ts-ignore
 							object,
 							groupMaterial,
 							normalAttribute,
@@ -812,6 +824,7 @@ class BufferGeometryUtils {
 					c = index.getX(i + 2);
 
 					_calculateMorphedAttributeData(
+						//@ts-ignore
 						object,
 						material,
 						positionAttribute,
@@ -822,6 +835,7 @@ class BufferGeometryUtils {
 					);
 
 					_calculateMorphedAttributeData(
+						//@ts-ignore
 						object,
 						material,
 						normalAttribute,
@@ -856,6 +870,7 @@ class BufferGeometryUtils {
 						c = j + 2;
 
 						_calculateMorphedAttributeData(
+							//@ts-ignore
 							object,
 							groupMaterial,
 							positionAttribute,
@@ -866,6 +881,7 @@ class BufferGeometryUtils {
 						);
 
 						_calculateMorphedAttributeData(
+							//@ts-ignore
 							object,
 							groupMaterial,
 							normalAttribute,
@@ -891,6 +907,7 @@ class BufferGeometryUtils {
 					c = i + 2;
 
 					_calculateMorphedAttributeData(
+						//@ts-ignore
 						object,
 						material,
 						positionAttribute,
@@ -901,6 +918,7 @@ class BufferGeometryUtils {
 					);
 
 					_calculateMorphedAttributeData(
+						//@ts-ignore
 						object,
 						material,
 						normalAttribute,
