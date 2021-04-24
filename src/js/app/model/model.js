@@ -21,45 +21,7 @@ export default class Model {
     // Manager is passed in to loader to determine when loading done in main
 
     switch (type) {
-      case 'gltf':
-        // Load model with selected loader
-        new GLTFLoader(this.manager).load(
-          Config.models[Config.model.selected].path,
-          (gltf) => {
-            const scene = gltf.scene;
-            let mesh;
-
-            if (Config.shadow.enabled) {
-              scene.traverse(function(node) {
-                if (node.isMesh || node.isLight) node.castShadow = true;
-                if (node.isMesh) {
-                  node.material.wireframe = Config.mesh.wireframe;
-                  mesh = node;
-                }
-              });
-            }
-
-            this.obj = mesh;
-
-            BufferGeometryUtils.computeTangents(mesh.geometry);
-
-            var group = new THREE.Group();
-            group.scale.multiplyScalar(0.25);
-            this.scene.add( group );
-
-            this.ref = group;
-
-            // To make sure that the matrixWorld is up to date for the boxhelpers
-            group.updateMatrixWorld(true);
-            group.add(mesh);
-
-            // Add to scene
-            this.scene.add(scene);
-          },
-          Helpers.logProgress(),
-          Helpers.logError()
-        );
-        break;
+      
 
       case 'object':
         // Load model with ObjectLoader
@@ -70,7 +32,7 @@ export default class Model {
               if(child instanceof THREE.Mesh) {
                 // Create material for mesh and set its map to texture by name from preloaded textures
                 const material = new Material(0xffffff).standard;
-                material.map = this.textures.UV;
+                material.map = this.textures.Grass;
                 child.material = material;
 
                 // Set to cast and receive shadow if enabled

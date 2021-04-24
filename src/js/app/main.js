@@ -1,46 +1,83 @@
 // Global imports -
-import * as THREE from 'three';
 import TWEEN from '@tweenjs/tween.js';
-
+import * as THREE from 'three';
+// data
+import Config from './../data/config';
 // Local imports -
 // Components
 import Renderer from './components/renderer';
-import Camera from './components/camera';
-import Light from './components/light';
-import Controls from './components/controls';
-import Geometry from './components/geometry';
-
 // Helpers
 import Stats from './helpers/stats';
-import MeshHelper from './helpers/meshHelper';
-
 // Model
 import Texture from './model/texture';
-import Model from './model/model';
 
-// Managers
-import Interaction from './managers/interaction';
-import DatGUI from './managers/datGUI';
 
-// data
-import Config from './../data/config';
+
+
+
 // -- End of imports
+let directions;
+function generateSquareMaze(dimension) {
+  console.log(dimension,'Dimension')
+  console.log(field)
+  function iterate(field, x, y) {
+      field[x][y] = false;
+      while(true) {
+          directions = [];
+          console.log(field.dimension,'Directions')
+          if(x > 1 && field[x-2][y] == true) {
+              directions.push([-1, 0]);
+          }
+          if(x < field.dimension - 2 && field[x+2][y] == true) {
+              directions.push([1, 0]);
+          }
+          if(y > 1 && field[x][y-2] == true) {
+              directions.push([0, -1]);
+          }
+          if(y < field.dimension - 2 && field[x][y+2] == true) {
+              directions.push([0, 1]);
+          }
+          if(directions.length == 0) {
+              return field;
+          }
+          console.log(directions[Math.floor(Math.random()*directions.length)],'Directions af')
+          const dir = directions[Math.floor(Math.random()*directions.length)];
+          console.log(dir,'Drection')
+          field[x+dir[0]][y+dir[1]] = false;
+          field = iterate(field, x+dir[0]*2, y+dir[1]*2);
+      }
+  }
 
+  // Initialize the field.
+  var field = new Array(dimension);
+  field.dimension = dimension;
+  for(var i = 0; i < dimension; i++) {
+      field[i] = new Array(dimension);
+      for (var j = 0; j < dimension; j++) {
+          field[i][j] = true;
+      }
+  }
+  // Gnerate the maze recursively.
+  field = iterate(field, 1, 1);
+  console.log(field,'field 2')
+  return field;
+
+}
 // This class instantiates and ties all of the components together, starts the loading process and renders the main loop
 export default class Main {
   constructor(container) {
     // Set container property to container element
     this.container = container;
-
+    
     // Start Three clock
     this.clock = new THREE.Clock();
-
+    this.mazeDimension = 11;
     // Main scene creation
     this.scene = new THREE.Scene();
     this.scene.fog = new THREE.FogExp2(Config.fog.color, Config.fog.near);
-
+    
     // Get Device Pixel Ratio first for retina
-    if(window.devicePixelRatio) {
+    if (window.devicePixelRatio) {
       Config.dpr = window.devicePixelRatio;
     }
 
@@ -48,63 +85,85 @@ export default class Main {
     this.renderer = new Renderer(this.scene, container);
 
     // Components instantiations
-    this.camera = new Camera(this.renderer.threeRenderer);
-    this.controls = new Controls(this.camera.threeCamera, container);
-    this.light = new Light(this.scene);
-
-    // Create and place lights in scene
-    const lights = ['ambient', 'directional', 'point', 'hemi'];
-    lights.forEach((light) => this.light.place(light));
-
-    // Create and place geo in scene
-    this.geometry = new Geometry(this.scene);
-    this.geometry.make('plane')(150, 150, 10, 10);
-    this.geometry.place([0, -20, 0], [Math.PI / 2, 0, 0]);
-
+    // this.camera = new Camera(this.renderer.threeRenderer);
+    //this.controls = new Controls(this.camera.threeCamera, container);
     // Set up rStats if dev environment
-    if(Config.isDev && Config.isShowingStats) {
-      this.stats = new Stats(this.renderer);
-      this.stats.setUp();
-    }
-
-    // Set up gui
-    if (Config.isDev) {
-      this.gui = new DatGUI(this)
-    }
-
+    const aspect = window.innerWidth / window.innerHeight;
+    this.camera = new THREE.PerspectiveCamera(60, aspect, 1, 1000);
+    this.camera.position.set(1, 1, 5);
+    console.log(this.camera.rotation,'Value of rotation')
+    this.scene.add(this.camera);
+    //Point light
+    const pointLight = new THREE.PointLight(0xffffff, 1);
+    pointLight.position.set(1, 1, 1.3);
+    this.scene.add(pointLight);
+    //Ambient light
+    this.scene.add(new THREE.AmbientLight(0x404040));
     // Instantiate texture class
     this.texture = new Texture();
+    const ball = new THREE.SphereGeometry(0.25, 32, 16);
 
+    const groundGeometry = new THREE.PlaneGeometry(this.mazeDimension * 10,
+      this.mazeDimension * 10,
+      this.mazeDimension,
+      this.mazeDimension)
+      
+      this.maze = generateSquareMaze(this.mazeDimension);  
+     
+      
     // Start loading the textures and then go on to load the model after the texture Promises have resolved
     this.texture.load().then(() => {
-      this.manager = new THREE.LoadingManager();
 
-      // Textures loaded, load model
-      this.model = new Model(this.scene, this.manager, this.texture.textures);
-      this.model.load(Config.models[Config.model.selected].type);
-
-      // onProgress callback
-      this.manager.onProgress = (item, loaded, total) => {
-        console.log(`${item}: ${loaded} ${total}`);
-      };
-
-      // All loaders done now
-      this.manager.onLoad = () => {
-        // Set up interaction manager with the app now that the model is finished loading
-        new Interaction(this.renderer.threeRenderer, this.scene, this.camera.threeCamera, this.controls.threeControls);
-
-        // Add dat.GUI controls if dev
-        if(Config.isDev) {
-          this.meshHelper = new MeshHelper(this.scene, this.model.obj);
-          if (Config.mesh.enableHelper) this.meshHelper.enable();
-
-          this.gui.load(this, this.model.obj);
+      
+      console.log(this.maze,'Maze')
+      const { grass: groundTexture, ball: ballTexture,wall: brickTexture } = this.texture.textures;
+      const ballMaterial = new THREE.MeshPhongMaterial({ map: ballTexture });
+      const ballMesh = new THREE.Mesh(ball, ballMaterial);
+      ballMesh.position.set(1, 1, 0.25);
+      this.scene.add(ballMesh);
+      const boxGeometry = new THREE.BoxGeometry(1,1,1,1,1,1);
+      const boxMesh = new THREE.Mesh(boxGeometry);
+      boxMesh.position.x = 2;
+      boxMesh.position.y = 2;
+      boxMesh.position.z = 0.5;
+      this.scene.add(boxMesh);
+      function generate_maze_mesh(field) {
+        var dummy = new THREE.BufferGeometry();
+        for (var i = 0; i < field.dimension; i++) {
+          for (var j = 0; j < field.dimension; j++) {
+            if (field[i][j]) {
+              var geometry = new THREE.BoxGeometry(1, 1, 1, 1, 1, 1);
+              var mesh_ij = new THREE.Mesh(geometry);
+              mesh_ij.position.x = i;
+              mesh_ij.position.y = j;
+              mesh_ij.position.z = 0.5;
+              //THREE.BufferGeometryUtils.mergeBufferGeometries(dummy, mesh_ij);
+            }
+          }
         }
+        var material = new THREE.MeshPhongMaterial({ map: brickTexture });
+        var mesh = new THREE.Mesh(dummy, material);
+        return mesh;
+      }
+      //this.maze.dimension = this.mazeDimension;
+      //this.maze[this.mazeDimension -1][this.mazeDimension -2] = false;
+      //const mergedMesh = generate_maze_mesh(this.maze);
+      //this.scene.add(mergedMesh)
+      //maze texture
 
-        // Everything is now fully loaded
-        Config.isLoaded = true;
-        this.container.querySelector('#loading').style.display = 'none';
-      };
+      groundTexture.wrapS = THREE.RepeatWrapping;
+      groundTexture.wrapT = THREE.RepeatWrapping;
+      groundTexture.repeat.set(this.mazeDimension * 5, this.mazeDimension * 5);
+      const groundMaterial = new THREE.MeshPhongMaterial({map: groundTexture });
+      const planeMesh = new THREE.Mesh(groundGeometry, groundMaterial);
+      planeMesh.position.set((this.mazeDimension - 1) / 2, (this.mazeDimension - 1) / 2, 0);
+      //planeMesh.position.set(,1,0.15);
+      planeMesh.rotation.set(0,0, 0 );
+      this.scene.add(planeMesh);
+
+
+      //new Interaction(this.renderer.threeRenderer, this.scene, this.camera.threeCamera, this.controls.threeControls);
+
     });
 
     // Start render which does not wait for model fully loaded
@@ -113,24 +172,24 @@ export default class Main {
 
   render() {
     // Render rStats if Dev
-    if(Config.isDev && Config.isShowingStats) {
-      Stats.start();
-    }
+    // if (Config.isDev && Config.isShowingStats) {
+    //   Stats.start();
+    // }
 
     // Call render function and pass in created scene and camera
-    this.renderer.render(this.scene, this.camera.threeCamera);
+    this.renderer.render(this.scene, this.camera);
 
     // rStats has finished determining render call now
-    if(Config.isDev && Config.isShowingStats) {
-      Stats.end();
-    }
+    // if (Config.isDev && Config.isShowingStats) {
+    //   Stats.end();
+    // }
 
     // Delta time is sometimes needed for certain updates
     //const delta = this.clock.getDelta();
 
     // Call any vendor or module frame updates here
     TWEEN.update();
-    this.controls.threeControls.update();
+    //this.controls.threeControls.update();
 
     // RAF
     requestAnimationFrame(this.render.bind(this)); // Bind the main class instead of window object

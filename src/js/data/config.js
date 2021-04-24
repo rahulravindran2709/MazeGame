@@ -14,9 +14,9 @@ export default {
   easing: TWEEN.Easing.Quadratic.InOut,
   duration: 500,
   model: {
-    selected: 0,
+    selected: 1,
     initialTypes: ['gltf', 'object'],
-    type: 'gltf'
+    type: 'object'
   },
   models: [
     {
@@ -26,14 +26,16 @@ export default {
     },
     {
       path: './assets/models/Teapot.json',
-      scale: 20,
+      scale: 10,
       type: 'object'
     }
   ],
   texture: {
     path: './assets/textures/',
     imageFiles: [
-      { name: 'UV', image: 'UV_Grid_Sm.jpg' }
+      { name: 'grass', image: 'football_grass.png' },
+      {name:'ball',image:'ball.png'},
+      {name: 'wall', image: 'logo.png'},
     ]
   },
   mesh: {
@@ -50,16 +52,16 @@ export default {
     near: 0.0008
   },
   camera: {
-    fov: 40,
+    fov: 60,
     near: 2,
     far: 1000,
-    aspect: 1,
+    aspect: window.innerWidth / window.innerHeight,
     posX: 0,
     posY: 30,
     posZ: 40
   },
   controls: {
-    autoRotate: true,
+    autoRotate: false,
     autoRotateSpeed: -0.5,
     rotateSpeed: 0.5,
     zoomSpeed: 0.8,
@@ -106,11 +108,11 @@ export default {
   pointLight: {
     enabled: true,
     color: 0xffffff,
-    intensity: 0.34,
+    intensity: 1,
     distance: 115,
-    x: 0,
-    y: 0,
-    z: 0
+    x: 1,
+    y: 1,
+    z: 1.3
   },
   hemiLight: {
     enabled: true,

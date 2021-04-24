@@ -13,7 +13,7 @@ export default class Material {
       shading: THREE.FlatShading,
       roughness: 1,
       metalness: 0,
-      side: THREE.DoubleSide
+      side: THREE.DoubleSide,
     });
 
     this.wire = new THREE.MeshBasicMaterial({wireframe: true});
