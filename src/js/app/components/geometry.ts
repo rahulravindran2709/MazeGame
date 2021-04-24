@@ -2,6 +2,8 @@ import * as THREE from 'three';
 
 import Material from './material';
 import Config from '../../data/config';
+import { BufferGeometry, Object3D } from 'three';
+import { BufferGeometryUtils } from '../../utils/bufferGeometryUtils';
 
 // This helper class can be used to create and then place geometry in the scene
 export default class Geometry {
@@ -32,6 +34,29 @@ export default class Geometry {
       this.dimension,
       this.dimension);
     return this.geo;
+  }
+
+  makeWalls(mazeCoordinates: Array<Array<boolean>>) {
+    const originHelper = new Object3D();
+    const positionHelper = new Object3D();
+    const geometries: BufferGeometry[] = [];
+    for (let i = 0; i < mazeCoordinates.length; i++) {
+      for (let j = 0; j < mazeCoordinates.length; j++) {
+        if (mazeCoordinates[i][j] === true) {
+          const boxGeometry = new THREE.BoxGeometry(1, 1, 1, 1, 1, 1);
+          positionHelper.position.x = i;
+          positionHelper.position.y = j;
+          positionHelper.position.z = 0;
+          positionHelper.add(originHelper);
+          originHelper.updateWorldMatrix(true, false);
+          boxGeometry.applyMatrix4(originHelper.matrixWorld);
+          geometries.push(boxGeometry);
+        }
+
+      }
+    }
+    const mergedGeom = BufferGeometryUtils.mergeBufferGeometries(geometries);
+    return mergedGeom;
   }
 
   // place(position, rotation) {

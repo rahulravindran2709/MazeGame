@@ -3,20 +3,17 @@ import TWEEN from '@tweenjs/tween.js';
 import * as THREE from 'three';
 // data
 import Config from '../data/config';
+import Camera from './components/camera';
+import Controls from './components/controls';
+import Geometry from './components/geometry';
+import Light from './components/light';
+import Material from './components/material';
 // Local imports -
 // Components
 import Renderer from './components/renderer';
-import Controls from './components/controls';
-import Camera from './components/camera';
-import Material from './components/material';
-// Helpers
-import Stats from './helpers/stats';
 // Model
 import Texture from './model/texture';
-import Geometry from './components/geometry';
-import  '../utils/orbitControls';
-import { BufferGeometryUtils } from '../utils/bufferGeometryUtils';
-import { Object3D } from 'three';
+import Interaction from './managers/interaction';
 
 
 
@@ -36,6 +33,8 @@ export default class Main {
   material;
   geometry;
   controls;
+  gameState;
+  lights;
   constructor(container: HTMLElement) {
     // Set container property to container element
     this.container = container;
@@ -60,11 +59,14 @@ export default class Main {
     this.scene.add(this.camera.threeCamera);
     this.controls = new Controls(this.camera.threeCamera, container);
     //Point light
-    const pointLight = new THREE.PointLight(0xffffff, 1);
-    pointLight.position.set(1, 1, 1.3);
-    this.scene.add(pointLight);
-    //Ambient light
-    this.scene.add(new THREE.AmbientLight(0x404040));
+    // const pointLight = new THREE.PointLight(0xffffff, 1);
+    // pointLight.position.set(1, 1, 1.3);
+    // this.scene.add(pointLight);
+    // //Ambient light
+    // this.scene.add(new THREE.AmbientLight(0x404040));
+    this.lights = new Light(this.scene);
+    this.lights.place('ambient');
+    this.lights.place('point');
     // Instantiate texture class
     this.texture = new Texture();
     const ball = this.geometry.makeBall();
@@ -73,7 +75,7 @@ export default class Main {
 
     this.maze = this.generateSquareMaze(this.mazeDimension);
     this.maze[this.mazeDimension - 1][this.mazeDimension - 2] = false;
-
+    const wallGeometry =  this.geometry.makeWalls(this.maze);
     // Start loading the textures and then go on to load the model after the texture Promises have resolved
     this.texture.load().then(() => {
 
@@ -82,86 +84,30 @@ export default class Main {
       const ballMesh = new THREE.Mesh(ball, ballMaterial);
       ballMesh.position.set(1, 1, 0.25);
       this.scene.add(ballMesh);
-      const boxGeometry = new THREE.BoxGeometry(1, 1, 1, 1, 1, 1);
       const boxMaterial = this.material.makePhongMaterial(brickTexture);
-      const originHelper = new Object3D();
-      const positionHelper = new Object3D();
-      positionHelper.position.x = 2;
-      positionHelper.position.y = 2;
-      positionHelper.position.z = 0;
-      positionHelper.add(originHelper);
-      originHelper.updateWorldMatrix(true,false);
-      boxGeometry.applyMatrix4(originHelper.matrixWorld);
-      // const boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
-      positionHelper.position.x = 2;
-      positionHelper.position.y = 3;
-      positionHelper.position.z = 0;
-      originHelper.updateWorldMatrix(true,false);
-      const secondBoxGeometry = new THREE.BoxGeometry(1, 1, 1, 1, 1, 1);
-      secondBoxGeometry.applyMatrix4(originHelper.matrixWorld);
-      // boxMesh.position.x = 2;
-      // boxMesh.position.y = 2;
-      // boxMesh.position.z = 0.5;
-      //boxMesh.updateMatrix();
-      //this.scene.add(boxMesh);
       
-      // const secondMesh = new THREE.Mesh(secondBoxGeometry, boxMaterial);
-
-      // secondMesh.position.x = 2;
-      // secondMesh.position.y = 4;
-      // secondMesh.position.z = 0.5;
-      // secondMesh.updateMatrix();
-      //this.scene.add(secondMesh);
-      const mergedGeom = BufferGeometryUtils.mergeBufferGeometries([boxGeometry,secondBoxGeometry]);
-      const mergedMesh = new THREE.Mesh(mergedGeom, boxMaterial);
+      const mergedMesh = new THREE.Mesh(wallGeometry, boxMaterial);
       mergedMesh.position.z = 0.5;
       this.scene.add(mergedMesh);
-
-      //this.maze.dimension = this.mazeDimension;
-      //this.maze[this.mazeDimension -1][this.mazeDimension -2] = false;
-      //const mergedMesh = generate_maze_mesh(this.maze);
-      //this.scene.add(mergedMesh)
-      //maze texture
-
+      //Add ground texture and create ground mesh
       groundTexture.wrapS = THREE.RepeatWrapping;
       groundTexture.wrapT = THREE.RepeatWrapping;
       groundTexture.repeat.set(this.mazeDimension * 5, this.mazeDimension * 5);
       const groundMaterial = this.material.makePhongMaterial(groundTexture);
       const planeMesh = new THREE.Mesh(groundGeometry, groundMaterial);
       planeMesh.position.set((this.mazeDimension - 1) / 2, (this.mazeDimension - 1) / 2, 0);
-      //planeMesh.position.set(,1,0.15);
       planeMesh.rotation.set(0, 0, 0);
       this.scene.add(planeMesh);
 
 
-      //new Interaction(this.renderer.threeRenderer, this.scene, this.camera.threeCamera, this.controls.threeControls);
+      new Interaction(this.renderer.threeRenderer, this.scene, this.camera.threeCamera, this.controls.threeControls);
 
     });
-
+    this.gameState = 'initialize';
     // Start render which does not wait for model fully loaded
     this.render();
   }
-  generate_maze_mesh(field: Array<Array<boolean>>, dimension: number) {
-    var dummy = new THREE.BufferGeometry();
-    for (var i = 0; i < dimension; i++) {
-      for (var j = 0; j < dimension; j++) {
-        if (field[i][j]) {
-          var geometry = new THREE.BoxGeometry(1, 1, 1, 1, 1, 1);
-          var mesh_ij = new THREE.Mesh(geometry);
-          mesh_ij.position.x = i;
-          mesh_ij.position.y = j;
-          mesh_ij.position.z = 0.5;
-          //THREE.BufferGeometryUtils.mergeBufferGeometries(dummy, mesh_ij);
-        }
-      }
-    }
-    // var material = new THREE.MeshPhongMaterial({ map: brickTexture });
-    // var mesh = new THREE.Mesh(dummy, material);
-    //return mesh;
-  }
   generateSquareMaze(dimension: number) {
-    console.log(dimension, 'Dimension')
-    console.log(field)
     function iterate(field: Array<Array<boolean>>, x: number, y: number) {
       field[x][y] = false;
       while (true) {
@@ -207,7 +153,7 @@ export default class Main {
     // }
 
     // Call render function and pass in created scene and camera
-    this.renderer.render(this.scene, this.camera.threeCamera);
+    
 
     // rStats has finished determining render call now
     // if (Config.isDev && Config.isShowingStats) {
@@ -218,6 +164,29 @@ export default class Main {
     //const delta = this.clock.getDelta();
     // Call any vendor or module frame updates here
     TWEEN.update();
+    switch(this.gameState){
+      case 'initialize':{
+        this.gameState = 'fade in';
+        this.lights.pointLight.intensity = 0;
+      }
+      case 'fade in': {
+        const pointLightIntensity = this.lights.pointLight.intensity;
+        this.lights.pointLight.intensity += 0.01 * (1.0 - pointLightIntensity);
+        this.renderer.render(this.scene, this.camera.threeCamera);
+        if (Math.abs(pointLightIntensity - 1.0) < 0.05) {
+          this.lights.pointLight.intensity = 1.0;
+          this.gameState = "play";
+        }
+      
+        break;
+        
+      }
+      case 'play':{
+         //console.log('play');
+         this.renderer.render(this.scene, this.camera.threeCamera);
+         break; 
+      }
+    }
     //this.controls.threeControls.update();
 
     // RAF
