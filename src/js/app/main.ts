@@ -2,7 +2,7 @@
 import TWEEN from '@tweenjs/tween.js';
 import * as THREE from 'three';
 // data
-import Config from './../data/config';
+import Config from '../data/config';
 // Local imports -
 // Components
 import Renderer from './components/renderer';
@@ -18,55 +18,17 @@ import Texture from './model/texture';
 
 // -- End of imports
 let directions;
-function generateSquareMaze(dimension) {
-  console.log(dimension,'Dimension')
-  console.log(field)
-  function iterate(field, x, y) {
-      field[x][y] = false;
-      while(true) {
-          directions = [];
-          console.log(field.dimension,'Directions')
-          if(x > 1 && field[x-2][y] == true) {
-              directions.push([-1, 0]);
-          }
-          if(x < field.dimension - 2 && field[x+2][y] == true) {
-              directions.push([1, 0]);
-          }
-          if(y > 1 && field[x][y-2] == true) {
-              directions.push([0, -1]);
-          }
-          if(y < field.dimension - 2 && field[x][y+2] == true) {
-              directions.push([0, 1]);
-          }
-          if(directions.length == 0) {
-              return field;
-          }
-          console.log(directions[Math.floor(Math.random()*directions.length)],'Directions af')
-          const dir = directions[Math.floor(Math.random()*directions.length)];
-          console.log(dir,'Drection')
-          field[x+dir[0]][y+dir[1]] = false;
-          field = iterate(field, x+dir[0]*2, y+dir[1]*2);
-      }
-  }
-
-  // Initialize the field.
-  var field = new Array(dimension);
-  field.dimension = dimension;
-  for(var i = 0; i < dimension; i++) {
-      field[i] = new Array(dimension);
-      for (var j = 0; j < dimension; j++) {
-          field[i][j] = true;
-      }
-  }
-  // Gnerate the maze recursively.
-  field = iterate(field, 1, 1);
-  console.log(field,'field 2')
-  return field;
-
-}
 // This class instantiates and ties all of the components together, starts the loading process and renders the main loop
 export default class Main {
-  constructor(container) {
+  container;
+  clock;
+  scene;
+  mazeDimension;
+  renderer;
+  camera;
+  texture;
+  maze;
+  constructor(container: HTMLElement) {
     // Set container property to container element
     this.container = container;
     
@@ -102,7 +64,7 @@ export default class Main {
       this.mazeDimension,
       this.mazeDimension)
       
-      this.maze = generateSquareMaze(this.mazeDimension);  
+      this.maze = this.generateSquareMaze(this.mazeDimension);  
      
       
     // Start loading the textures and then go on to load the model after the texture Promises have resolved
@@ -121,24 +83,7 @@ export default class Main {
       boxMesh.position.y = 2;
       boxMesh.position.z = 0.5;
       this.scene.add(boxMesh);
-      function generate_maze_mesh(field) {
-        var dummy = new THREE.BufferGeometry();
-        for (var i = 0; i < field.dimension; i++) {
-          for (var j = 0; j < field.dimension; j++) {
-            if (field[i][j]) {
-              var geometry = new THREE.BoxGeometry(1, 1, 1, 1, 1, 1);
-              var mesh_ij = new THREE.Mesh(geometry);
-              mesh_ij.position.x = i;
-              mesh_ij.position.y = j;
-              mesh_ij.position.z = 0.5;
-              //THREE.BufferGeometryUtils.mergeBufferGeometries(dummy, mesh_ij);
-            }
-          }
-        }
-        var material = new THREE.MeshPhongMaterial({ map: brickTexture });
-        var mesh = new THREE.Mesh(dummy, material);
-        return mesh;
-      }
+     
       //this.maze.dimension = this.mazeDimension;
       //this.maze[this.mazeDimension -1][this.mazeDimension -2] = false;
       //const mergedMesh = generate_maze_mesh(this.maze);
@@ -163,7 +108,65 @@ export default class Main {
     // Start render which does not wait for model fully loaded
     this.render();
   }
+  generate_maze_mesh(field: Array<Array<boolean>>,dimension: number) {
+    var dummy = new THREE.BufferGeometry();
+    for (var i = 0; i < dimension; i++) {
+      for (var j = 0; j < dimension; j++) {
+        if (field[i][j]) {
+          var geometry = new THREE.BoxGeometry(1, 1, 1, 1, 1, 1);
+          var mesh_ij = new THREE.Mesh(geometry);
+          mesh_ij.position.x = i;
+          mesh_ij.position.y = j;
+          mesh_ij.position.z = 0.5;
+          //THREE.BufferGeometryUtils.mergeBufferGeometries(dummy, mesh_ij);
+        }
+      }
+    }
+    // var material = new THREE.MeshPhongMaterial({ map: brickTexture });
+    // var mesh = new THREE.Mesh(dummy, material);
+    //return mesh;
+  }
+generateSquareMaze(dimension: number) {
+  console.log(dimension,'Dimension')
+  console.log(field)
+  function iterate(field: Array<Array<boolean>>, x: number, y: number) {
+      field[x][y] = false;
+      while(true) {
+          directions = [];
+          if(x > 1 && field[x-2][y] == true) {
+              directions.push([-1, 0]);
+          }
+          if(x < dimension - 2 && field[x+2][y] == true) {
+              directions.push([1, 0]);
+          }
+          if(y > 1 && field[x][y-2] == true) {
+              directions.push([0, -1]);
+          }
+          if(y < dimension - 2 && field[x][y+2] == true) {
+              directions.push([0, 1]);
+          }
+          if(directions.length == 0) {
+              return field;
+          }
+          const dir = directions[Math.floor(Math.random()*directions.length)];
+          field[x+dir[0]][y+dir[1]] = false;
+          field = iterate(field, x+dir[0]*2, y+dir[1]*2);
+      }
+  }
 
+  // Initialize the field.
+  var field = new Array(dimension);
+  for(var i = 0; i < dimension; i++) {
+      field[i] = new Array(dimension);
+      for (var j = 0; j < dimension; j++) {
+          field[i][j] = true;
+      }
+  }
+  // Gnerate the maze recursively.
+  field = iterate(field, 1, 1);
+  return field;
+
+}
   render() {
     // Render rStats if Dev
     // if (Config.isDev && Config.isShowingStats) {

@@ -10,6 +10,7 @@ import Config from '../../data/config';
 // Using promises to preload textures prevents issues when applying textures to materials
 // before the textures have loaded.
 export default class Texture {
+  textures: Record<string,THREE.Texture>;
   constructor() {
     // Prop that will contain all loaded textures
     this.textures = {};
@@ -19,7 +20,7 @@ export default class Texture {
     const loader = new THREE.TextureLoader();
     const maxAnisotropy = Config.maxAnisotropy;
     const imageFiles = Config.texture.imageFiles;
-    const promiseArray = [];
+    const promiseArray: Array<Promise<{ [key: string]: THREE.Texture }>> = [];
 
     loader.setPath(Config.texture.path);
 
@@ -33,7 +34,7 @@ export default class Texture {
             texture.anisotropy = maxAnisotropy;
 
             // Resolve Promise with object of texture if it is instance of THREE.Texture
-            const modelOBJ = {};
+            const modelOBJ:{ [key: string]: THREE.Texture } = {};
             modelOBJ[imageFile.name] = texture;
             if(modelOBJ[imageFile.name] instanceof THREE.Texture)
               resolve(modelOBJ);
