@@ -56,9 +56,9 @@ export default {
     near: 2,
     far: 1000,
     aspect: window.innerWidth / window.innerHeight,
-    posX: 0,
-    posY: 30,
-    posZ: 40
+    posX: 1,
+    posY: 1,
+    posZ: 5
   },
   controls: {
     autoRotate: false,

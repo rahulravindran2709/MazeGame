@@ -6,6 +6,7 @@ import Config from './../data/config';
 // Local imports -
 // Components
 import Renderer from './components/renderer';
+import Camera from './components/camera';
 // Helpers
 import Stats from './helpers/stats';
 // Model
@@ -83,16 +84,9 @@ export default class Main {
 
     // Main renderer constructor
     this.renderer = new Renderer(this.scene, container);
-
-    // Components instantiations
-    // this.camera = new Camera(this.renderer.threeRenderer);
-    //this.controls = new Controls(this.camera.threeCamera, container);
-    // Set up rStats if dev environment
     const aspect = window.innerWidth / window.innerHeight;
-    this.camera = new THREE.PerspectiveCamera(60, aspect, 1, 1000);
-    this.camera.position.set(1, 1, 5);
-    console.log(this.camera.rotation,'Value of rotation')
-    this.scene.add(this.camera);
+    this.camera = new Camera(this.renderer.threeRenderer);
+    this.scene.add(this.camera.threeCamera);
     //Point light
     const pointLight = new THREE.PointLight(0xffffff, 1);
     pointLight.position.set(1, 1, 1.3);
@@ -177,7 +171,7 @@ export default class Main {
     // }
 
     // Call render function and pass in created scene and camera
-    this.renderer.render(this.scene, this.camera);
+    this.renderer.render(this.scene, this.camera.threeCamera);
 
     // rStats has finished determining render call now
     // if (Config.isDev && Config.isShowingStats) {
