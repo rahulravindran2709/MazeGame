@@ -1,7 +1,6 @@
 // Global imports -
 import TWEEN from '@tweenjs/tween.js';
 import * as THREE from 'three';
-import * as Cannon from 'cannon-es';
 // data
 import Config from '../data/config';
 import Camera from './components/camera';
@@ -9,13 +8,13 @@ import Controls from './components/controls';
 import Geometry from './components/geometry';
 import Light from './components/light';
 import Material from './components/material';
+import { Physics } from './components/physics';
 // Local imports -
 // Components
 import Renderer from './components/renderer';
+import Interaction from './managers/interaction';
 // Model
 import Texture from './model/texture';
-import Interaction from './managers/interaction';
-import { Physics } from './components/physics';
 
 
 
@@ -88,7 +87,6 @@ export default class Main {
     this.render(Date.now());
   }
   moveBall(direction: 'left' | 'right' | 'up' | 'down') {
-    console.log('Handler')
     this.physics.moveBall(direction);
   }
   setupRenderWorld() {
@@ -125,6 +123,7 @@ export default class Main {
   }
   updateRenderWorld(){
     this.ballMesh.position.copy(this.physics.ball.position as unknown as THREE.Vector3);
+    this.ballMesh.quaternion.copy(this.physics.ball.quaternion as unknown as THREE.Quaternion);
   }
   setupPhysics() {
     this.physics.setupWorld();

@@ -23,14 +23,14 @@ export class Physics {
     }
     createBall() {
         const { physics: { ball: { initialPosition, mass, radius } } } = config;
-        this.ball = new Cannon.Body({ mass, linearDamping : 0.5, shape: new Cannon.Sphere(radius) });
+        this.ball = new Cannon.Body({ mass, linearDamping : 0.5, angularDamping: 0.5, shape: new Cannon.Sphere(radius) });
         const { x = 0, y = 0, z = 0 } = initialPosition;
         this.ball.position.set(x, y, z);
         this.world.addBody(this.ball);
     }
     moveBall(direction : 'left' | 'right' | 'up' | 'down'){
         let directionVector;
-        const origin = new Cannon.Vec3(0,0,0);
+        const origin = new Cannon.Vec3(0,0,0.25);
         switch(direction){
             case 'left':{
                 directionVector = new Cannon.Vec3(-1,0,0);
@@ -53,7 +53,6 @@ export class Physics {
             }
         }
         this.ball.applyImpulse(directionVector,origin);
-        console.log(this.ball.position,'Position')
     }
     updatePhysics(time: number){
         this.world.step(this.fixedTimeStep,time,this.maxSubSteps);
