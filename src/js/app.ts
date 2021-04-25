@@ -12,7 +12,7 @@ import './../css/app.scss';
 //   Config.isDev = true;
 // }
 
-console.log(global,'Global')
+
 
 function init() {
   // Check for webGL capabilities

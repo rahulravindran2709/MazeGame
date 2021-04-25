@@ -1,8 +1,10 @@
+import { Material } from "three";
+
 // Provides simple static functions that are used multiple times in the app
 export default class Helpers {
-  static throttle(fn, threshhold, scope) {
+  static throttle(fn: (...args: any[]) => void, threshhold: number, scope?:any) {
     threshhold || (threshhold = 250);
-    let last, deferTimer;
+    let last: number, deferTimer: NodeJS.Timeout;
 
     return function() {
       const context = scope || this;
@@ -25,49 +27,49 @@ export default class Helpers {
   }
 
   static logProgress() {
-    return function(xhr) {
+    return function(xhr:ProgressEvent) {
       if(xhr.lengthComputable) {
         const percentComplete = xhr.loaded / xhr.total * 100;
 
-        console.log(Math.round(percentComplete, 2) + '% downloaded');
+        console.log(Math.round(percentComplete) + '% downloaded');
       }
     }
   }
 
   static logError() {
-    return function(xhr) {
+    return function(xhr: ProgressEvent) {
       console.error(xhr);
     }
   }
 
-  static handleColorChange(color) {
-    return (value) => {
+  static handleColorChange(color: THREE.Color) {
+    return (value: string) => {
       if(typeof value === 'string') {
         value = value.replace('#', '0x');
       }
 
-      color.setHex(value);
+      color.setHex(parseInt(value,12));
     };
   }
 
-  static update(mesh) {
+  static update(mesh: THREE.Mesh) {
     this.needsUpdate(mesh.material, mesh.geometry);
   }
 
-  static needsUpdate(material, geometry) {
+  static needsUpdate(material: THREE.Mesh['material'], geometry: THREE.BufferGeometry) {
     return function() {
-      material.shading = +material.shading; //Ensure number
-      material.vertexColors = +material.vertexColors; //Ensure number
-      material.side = +material.side; //Ensure number
-      material.needsUpdate = true;
-      geometry.verticesNeedUpdate = true;
-      geometry.normalsNeedUpdate = true;
-      geometry.colorsNeedUpdate = true;
+      if(material instanceof Material){
+        material.side = +material.side; //Ensure number
+        material.needsUpdate = true;
+      }
+      geometry.attributes.position.needsUpdate = true;
+      geometry.attributes.normals.needsUpdate = true;
+      geometry.attributes.colors.needsUpdate = true;
     };
   }
 
-  static updateTexture(material, materialKey, textures) {
-    return function(key) {
+  static updateTexture(material: any, materialKey: string, textures: any) {
+    return function(key: string) {
       material[materialKey] = textures[key];
       material.needsUpdate = true;
     };
