@@ -84,6 +84,13 @@ export default class Main {
       shape: ballShape,
       position: new Cannon.Vec3(1, 1, 0)
     });
+    var worldPoint = new Cannon.Vec3(0,0,0.25);
+    var impulse = new Cannon.Vec3(500/60,500/60,500/60);
+
+    setTimeout(() => {
+      this.ballBody.applyImpulse(impulse,worldPoint)
+    },3000)
+    
     this.world.addBody(this.ballBody);
 
     // Start loading the textures and then go on to load the model after the texture Promises have resolved
@@ -182,7 +189,6 @@ export default class Main {
           var dt = (time - this.lastTime) / 1000;
           this.world.step(this.fixedTimeStep, dt, this.maxSubSteps);
        }
-       //console.log("Sphere z position: " + this.ballBody.position.z);
        this.lastTime = time;
         break;
       }
