@@ -13,23 +13,6 @@ export default {
   dpr: 1,
   easing: TWEEN.Easing.Quadratic.InOut,
   duration: 500,
-  model: {
-    selected: 1,
-    initialTypes: ['gltf', 'object'],
-    type: 'object'
-  },
-  models: [
-    {
-      path: './assets/models/duck.gltf',
-      scale: 20,
-      type: 'gltf'
-    },
-    {
-      path: './assets/models/Teapot.json',
-      scale: 10,
-      type: 'object'
-    }
-  ],
   texture: {
     path: './assets/textures/',
     imageFiles: [
@@ -37,15 +20,6 @@ export default {
       {name:'ball',image:'ball.png'},
       {name: 'wall', image: 'logo.png'},
     ]
-  },
-  mesh: {
-    enableHelper: true,
-    wireframe: false,
-    translucent: false,
-    material: {
-      color: 0xffffff,
-      emissive: 0xffffff
-    }
   },
   fog: {
     color: 0xffffff,
