@@ -96,5 +96,23 @@ export default {
     x: 0,
     y: 0,
     z: 0
+  },
+  physics:{
+    world: {
+      gravity:{
+        x: 0,
+        y: 0,
+        z: 0
+      }
+    },
+    ball: {
+      mass : 1,
+      radius: 0.25,
+      initialPosition:{
+        x: 0,
+        y: 0,
+        z: 0
+      }
+    }
   }
 };

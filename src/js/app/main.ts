@@ -1,7 +1,7 @@
 // Global imports -
 import TWEEN from '@tweenjs/tween.js';
 import * as THREE from 'three';
-import * as Cannon from 'cannon';
+import * as Cannon from 'cannon-es';
 // data
 import Config from '../data/config';
 import Camera from './components/camera';
@@ -30,7 +30,7 @@ export default class Main {
   renderer;
   camera;
   texture;
-  maze;
+  maze: Array<Array<boolean>>;
   material;
   geometry;
   controls;
@@ -38,7 +38,7 @@ export default class Main {
   lights;
   world;
   ballBody;
-  fixedTimeStep =1/60;
+  fixedTimeStep = 1 / 60;
   maxSubSteps = 3;
   lastTime: number;
   constructor(container: HTMLElement) {
@@ -65,18 +65,10 @@ export default class Main {
     this.scene.add(this.camera.threeCamera);
     this.controls = new Controls(this.camera.threeCamera, container);
     this.lights = new Light(this.scene);
-    this.lights.place('ambient');
-    this.lights.place('point');
     // Instantiate texture class
     this.texture = new Texture();
-    const ball = this.geometry.makeBall();
-
-    const groundGeometry = this.geometry.makeGround();
-
     this.maze = this.generateSquareMaze(this.mazeDimension);
     this.maze[this.mazeDimension - 1][this.mazeDimension - 2] = false;
-    const wallGeometry = this.geometry.makeWalls(this.maze);
-
     this.world = new Cannon.World();
     this.world.gravity.set(0, 0, 0);
     const ballShape = new Cannon.Sphere(0.25);
@@ -84,45 +76,50 @@ export default class Main {
       shape: ballShape,
       position: new Cannon.Vec3(1, 1, 0)
     });
-    var worldPoint = new Cannon.Vec3(0,0,0.25);
-    var impulse = new Cannon.Vec3(500/60,500/60,500/60);
+    var worldPoint = new Cannon.Vec3(0, 0, 0.25);
+    var impulse = new Cannon.Vec3(500 / 60, 500 / 60, 500 / 60);
 
     setTimeout(() => {
-      this.ballBody.applyImpulse(impulse,worldPoint)
-    },3000)
-    
+      this.ballBody.applyImpulse(impulse, worldPoint)
+    }, 3000)
+
     this.world.addBody(this.ballBody);
 
     // Start loading the textures and then go on to load the model after the texture Promises have resolved
     this.texture.load().then(() => {
-
-      const { grass: groundTexture, ball: ballTexture, wall: brickTexture } = this.texture.textures;
-      const ballMaterial = this.material.makePhongMaterial(ballTexture);
-      const ballMesh = new THREE.Mesh(ball, ballMaterial);
-      ballMesh.position.set(1, 1, 0.25);
-      this.scene.add(ballMesh);
-      const boxMaterial = this.material.makePhongMaterial(brickTexture);
-
-      const mergedMesh = new THREE.Mesh(wallGeometry, boxMaterial);
-      mergedMesh.position.z = 0.5;
-      this.scene.add(mergedMesh);
-      //Add ground texture and create ground mesh
-      groundTexture.wrapS = THREE.RepeatWrapping;
-      groundTexture.wrapT = THREE.RepeatWrapping;
-      groundTexture.repeat.set(this.mazeDimension * 5, this.mazeDimension * 5);
-      const groundMaterial = this.material.makePhongMaterial(groundTexture);
-      const planeMesh = new THREE.Mesh(groundGeometry, groundMaterial);
-      planeMesh.position.set((this.mazeDimension - 1) / 2, (this.mazeDimension - 1) / 2, 0);
-      planeMesh.rotation.set(0, 0, 0);
-      this.scene.add(planeMesh);
-
-
+      this.setupRenderWorld();
       new Interaction(this.renderer.threeRenderer, this.scene, this.camera.threeCamera, this.controls.threeControls);
 
     });
     this.gameState = 'initialize';
     // Start render which does not wait for model fully loaded
     this.render(Date.now());
+  }
+
+  setupRenderWorld() {
+    this.lights.place('ambient');
+    this.lights.place('point');
+    const ball = this.geometry.makeBall();
+    const groundGeometry = this.geometry.makeGround();
+    const wallGeometry = this.geometry.makeWalls(this.maze);
+    const { grass: groundTexture, ball: ballTexture, wall: brickTexture } = this.texture.textures;
+    const ballMaterial = this.material.makePhongMaterial(ballTexture);
+    const ballMesh = new THREE.Mesh(ball, ballMaterial);
+    ballMesh.position.set(1, 1, 0.25);
+    this.scene.add(ballMesh);
+    const boxMaterial = this.material.makePhongMaterial(brickTexture);
+    const mergedMesh = new THREE.Mesh(wallGeometry, boxMaterial);
+    mergedMesh.position.z = 0.5;
+    this.scene.add(mergedMesh);
+    //Add ground texture and create ground mesh
+    groundTexture.wrapS = THREE.RepeatWrapping;
+    groundTexture.wrapT = THREE.RepeatWrapping;
+    groundTexture.repeat.set(this.mazeDimension * 5, this.mazeDimension * 5);
+    const groundMaterial = this.material.makePhongMaterial(groundTexture);
+    const planeMesh = new THREE.Mesh(groundGeometry, groundMaterial);
+    planeMesh.position.set((this.mazeDimension - 1) / 2, (this.mazeDimension - 1) / 2, 0);
+    planeMesh.rotation.set(0, 0, 0);
+    this.scene.add(planeMesh);
   }
   generateSquareMaze(dimension: number) {
     function iterate(field: Array<Array<boolean>>, x: number, y: number) {
@@ -185,11 +182,11 @@ export default class Main {
       case 'play': {
         //console.log('play');
         this.renderer.render(this.scene, this.camera.threeCamera);
-        if(this.lastTime !== undefined){
+        if (this.lastTime !== undefined) {
           var dt = (time - this.lastTime) / 1000;
           this.world.step(this.fixedTimeStep, dt, this.maxSubSteps);
-       }
-       this.lastTime = time;
+        }
+        this.lastTime = time;
         break;
       }
     }
