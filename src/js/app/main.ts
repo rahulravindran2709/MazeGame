@@ -15,6 +15,7 @@ import Renderer from './components/renderer';
 // Model
 import Texture from './model/texture';
 import Interaction from './managers/interaction';
+import { Physics } from './components/physics';
 
 
 
@@ -36,11 +37,7 @@ export default class Main {
   controls;
   gameState;
   lights;
-  world;
-  ballBody;
-  fixedTimeStep = 1 / 60;
-  maxSubSteps = 3;
-  lastTime: number;
+  physics;
   constructor(container: HTMLElement) {
     // Set container property to container element
     this.container = container;
@@ -61,42 +58,43 @@ export default class Main {
 
     // Main renderer constructor
     this.renderer = new Renderer(this.scene, container);
+    //Instantiate camera
     this.camera = new Camera(this.renderer.threeRenderer);
-    this.scene.add(this.camera.threeCamera);
+
+
+    //Adding orbit controls
     this.controls = new Controls(this.camera.threeCamera, container);
+    //Instantiate lights
     this.lights = new Light(this.scene);
     // Instantiate texture class
     this.texture = new Texture();
+
+    //Instantiate the physics
+
+    this.physics = new Physics();
     this.maze = this.generateSquareMaze(this.mazeDimension);
     this.maze[this.mazeDimension - 1][this.mazeDimension - 2] = false;
-    this.world = new Cannon.World();
-    this.world.gravity.set(0, 0, 0);
-    const ballShape = new Cannon.Sphere(0.25);
-    this.ballBody = new Cannon.Body({
-      shape: ballShape,
-      position: new Cannon.Vec3(1, 1, 0)
-    });
-    var worldPoint = new Cannon.Vec3(0, 0, 0.25);
-    var impulse = new Cannon.Vec3(500 / 60, 500 / 60, 500 / 60);
 
-    setTimeout(() => {
-      this.ballBody.applyImpulse(impulse, worldPoint)
-    }, 3000)
-
-    this.world.addBody(this.ballBody);
 
     // Start loading the textures and then go on to load the model after the texture Promises have resolved
     this.texture.load().then(() => {
       this.setupRenderWorld();
-      new Interaction(this.renderer.threeRenderer, this.scene, this.camera.threeCamera, this.controls.threeControls);
+      new Interaction(this.renderer.threeRenderer, this.scene, this.camera.threeCamera, this.controls.threeControls,this.moveBall.bind(this));
 
     });
     this.gameState = 'initialize';
     // Start render which does not wait for model fully loaded
     this.render(Date.now());
   }
-
+  moveBall(direction: 'left' | 'right' | 'up' | 'down') {
+    console.log('Handler')
+    this.physics.moveBall(direction);
+  }
   setupRenderWorld() {
+    // Adding camera to the scene
+    this.scene.add(this.camera.threeCamera);
+
+    // Adding lights to scene
     this.lights.place('ambient');
     this.lights.place('point');
     const ball = this.geometry.makeBall();
@@ -106,10 +104,12 @@ export default class Main {
     const ballMaterial = this.material.makePhongMaterial(ballTexture);
     const ballMesh = new THREE.Mesh(ball, ballMaterial);
     ballMesh.position.set(1, 1, 0.25);
+    //Adding ball to scene
     this.scene.add(ballMesh);
     const boxMaterial = this.material.makePhongMaterial(brickTexture);
     const mergedMesh = new THREE.Mesh(wallGeometry, boxMaterial);
     mergedMesh.position.z = 0.5;
+    //Adding wall to scene
     this.scene.add(mergedMesh);
     //Add ground texture and create ground mesh
     groundTexture.wrapS = THREE.RepeatWrapping;
@@ -119,7 +119,12 @@ export default class Main {
     const planeMesh = new THREE.Mesh(groundGeometry, groundMaterial);
     planeMesh.position.set((this.mazeDimension - 1) / 2, (this.mazeDimension - 1) / 2, 0);
     planeMesh.rotation.set(0, 0, 0);
+    //Adding ground to scene
     this.scene.add(planeMesh);
+  }
+
+  setupPhysics() {
+    this.physics.setupWorld();
   }
   generateSquareMaze(dimension: number) {
     function iterate(field: Array<Array<boolean>>, x: number, y: number) {
@@ -181,16 +186,12 @@ export default class Main {
       }
       case 'play': {
         //console.log('play');
+        this.physics.updatePhysics(time);
         this.renderer.render(this.scene, this.camera.threeCamera);
-        if (this.lastTime !== undefined) {
-          var dt = (time - this.lastTime) / 1000;
-          this.world.step(this.fixedTimeStep, dt, this.maxSubSteps);
-        }
-        this.lastTime = time;
         break;
       }
     }
-    //this.controls.threeControls.update();
+    this.controls.threeControls.update();
 
     // RAF
     requestAnimationFrame(this.render.bind(this)); // Bind the main class instead of window object

@@ -1,7 +1,7 @@
 import * as THREE from 'three';
-import Keyboard,{ ALIAS } from '../../utils/keyboard';
-import Helpers from '../../utils/helpers';
 import Config from '../../data/config';
+import Helpers from '../../utils/helpers';
+import Keyboard from '../../utils/keyboard';
 
 // Manages all input interactions
 export default class Interaction {
@@ -11,7 +11,7 @@ export default class Interaction {
   controls;
   timeout: NodeJS.Timeout;
   keyboard;
-  constructor(renderer: THREE.Renderer, scene: THREE.Scene, camera: THREE.Camera, controls: THREE.OrbitControls) {
+  constructor(renderer: THREE.Renderer, scene: THREE.Scene, camera: THREE.Camera, controls: THREE.OrbitControls, moveHandler: (direction: string) => void) {
     // Properties
     this.renderer = renderer;
     this.scene = scene;
@@ -32,25 +32,29 @@ export default class Interaction {
     // Keyboard events
     this.keyboard.domElement.addEventListener('keydown', (event: KeyboardEvent) => {
       // Only once
-      if(event.repeat) {
+      if (event.repeat) {
         return;
       }
 
-      if(this.keyboard.eventMatches(event, 'escape')) {
+      if (this.keyboard.eventMatches(event, 'escape')) {
         console.log('Escape pressed');
       }
-      if(this.keyboard.eventMatches(event,'left')){
+      if (this.keyboard.eventMatches(event, 'left')) {
         console.log('Left pressed');
+        moveHandler('left');
       }
-      if(this.keyboard.eventMatches(event,'right')){
+      if (this.keyboard.eventMatches(event, 'right')) {
         console.log('Right pressed');
+        moveHandler('right');
       }
-      if(this.keyboard.eventMatches(event,'down')){
+      if (this.keyboard.eventMatches(event, 'down')) {
         console.log('Down pressed');
+        moveHandler('down');
       }
-      
-      if(this.keyboard.eventMatches(event,'up')){
+
+      if (this.keyboard.eventMatches(event, 'up')) {
         console.log('Up pressed');
+        moveHandler('up');
       }
     });
   }
@@ -72,7 +76,7 @@ export default class Interaction {
 
     clearTimeout(this.timeout);
 
-    this.timeout = setTimeout(function() {
+    this.timeout = setTimeout(function () {
       Config.isMouseMoving = false;
     }, 200);
 

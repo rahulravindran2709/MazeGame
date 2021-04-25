@@ -5,6 +5,9 @@ export class Physics {
     ball: Cannon.Body;
     force =500;
     dt = 1/60;
+    fixedTimeStep = 1 / 60;
+    maxSubSteps = 3;
+    lastTime: number;
     constructor() {
         this.setupWorld();
     }
@@ -51,5 +54,8 @@ export class Physics {
         }
         this.ball.applyImpulse(directionVector,origin);
         console.log(this.ball.position,'Position')
+    }
+    updatePhysics(time: number){
+        this.world.step(this.fixedTimeStep,time,this.maxSubSteps);
     }
 }
