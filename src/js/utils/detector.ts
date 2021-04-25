@@ -44,17 +44,12 @@ export default {
     return element;
   },
 
-  addGetWebGLMessage: function(parameters) {
-    var parent, id, element;
-
-    parameters = parameters || {};
-
-    parent = parameters.parent !== undefined ? parameters.parent : document.body;
-    id = parameters.id !== undefined ? parameters.id : 'oldie';
-
+  addGetWebGLMessage: function(parameters?: HTMLElement) {
+    let parent, id, element;
+    parent = parameters?.parentElement !== undefined ? parameters.parentElement : document.body;
+    id = parameters?.id !== undefined ? parameters.id : 'oldie';
     element = this.getWebGLErrorMessage();
     element.id = id;
-
     parent.appendChild(element);
   }
 };
