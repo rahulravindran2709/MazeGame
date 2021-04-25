@@ -23,7 +23,7 @@ export class Physics {
     }
     createBall() {
         const { physics: { ball: { initialPosition, mass, radius } } } = config;
-        this.ball = new Cannon.Body({ mass, shape: new Cannon.Sphere(radius) });
+        this.ball = new Cannon.Body({ mass, linearDamping : 0.5, shape: new Cannon.Sphere(radius) });
         const { x = 0, y = 0, z = 0 } = initialPosition;
         this.ball.position.set(x, y, z);
         this.world.addBody(this.ball);

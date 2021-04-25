@@ -38,6 +38,7 @@ export default class Main {
   gameState;
   lights;
   physics;
+  ballMesh: THREE.Mesh;
   constructor(container: HTMLElement) {
     // Set container property to container element
     this.container = container;
@@ -102,10 +103,10 @@ export default class Main {
     const wallGeometry = this.geometry.makeWalls(this.maze);
     const { grass: groundTexture, ball: ballTexture, wall: brickTexture } = this.texture.textures;
     const ballMaterial = this.material.makePhongMaterial(ballTexture);
-    const ballMesh = new THREE.Mesh(ball, ballMaterial);
-    ballMesh.position.set(1, 1, 0.25);
+    this.ballMesh = new THREE.Mesh(ball, ballMaterial);
+    this.ballMesh.position.set(1, 1, 0.25);
     //Adding ball to scene
-    this.scene.add(ballMesh);
+    this.scene.add(this.ballMesh);
     const boxMaterial = this.material.makePhongMaterial(brickTexture);
     const mergedMesh = new THREE.Mesh(wallGeometry, boxMaterial);
     mergedMesh.position.z = 0.5;
@@ -122,7 +123,9 @@ export default class Main {
     //Adding ground to scene
     this.scene.add(planeMesh);
   }
-
+  updateRenderWorld(){
+    this.ballMesh.position.copy(this.physics.ball.position as unknown as THREE.Vector3);
+  }
   setupPhysics() {
     this.physics.setupWorld();
   }
@@ -187,6 +190,7 @@ export default class Main {
       case 'play': {
         //console.log('play');
         this.physics.updatePhysics(time);
+        this.updateRenderWorld();
         this.renderer.render(this.scene, this.camera.threeCamera);
         break;
       }

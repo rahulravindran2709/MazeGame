@@ -109,9 +109,9 @@ export default {
       mass : 1,
       radius: 0.25,
       initialPosition:{
-        x: 0,
-        y: 0,
-        z: 0
+        x: 1,
+        y: 1,
+        z: 0.25
       }
     }
   }
