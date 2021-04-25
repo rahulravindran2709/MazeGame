@@ -1,6 +1,7 @@
 // Global imports -
 import TWEEN from '@tweenjs/tween.js';
 import * as THREE from 'three';
+import * as Cannon from 'cannon';
 // data
 import Config from '../data/config';
 import Camera from './components/camera';
@@ -35,6 +36,11 @@ export default class Main {
   controls;
   gameState;
   lights;
+  world;
+  ballBody;
+  fixedTimeStep =1/60;
+  maxSubSteps = 3;
+  lastTime: number;
   constructor(container: HTMLElement) {
     // Set container property to container element
     this.container = container;
@@ -52,18 +58,12 @@ export default class Main {
     if (window.devicePixelRatio) {
       Config.dpr = window.devicePixelRatio;
     }
-    
+
     // Main renderer constructor
     this.renderer = new Renderer(this.scene, container);
     this.camera = new Camera(this.renderer.threeRenderer);
     this.scene.add(this.camera.threeCamera);
     this.controls = new Controls(this.camera.threeCamera, container);
-    //Point light
-    // const pointLight = new THREE.PointLight(0xffffff, 1);
-    // pointLight.position.set(1, 1, 1.3);
-    // this.scene.add(pointLight);
-    // //Ambient light
-    // this.scene.add(new THREE.AmbientLight(0x404040));
     this.lights = new Light(this.scene);
     this.lights.place('ambient');
     this.lights.place('point');
@@ -75,7 +75,17 @@ export default class Main {
 
     this.maze = this.generateSquareMaze(this.mazeDimension);
     this.maze[this.mazeDimension - 1][this.mazeDimension - 2] = false;
-    const wallGeometry =  this.geometry.makeWalls(this.maze);
+    const wallGeometry = this.geometry.makeWalls(this.maze);
+
+    this.world = new Cannon.World();
+    this.world.gravity.set(0, 0, 0);
+    const ballShape = new Cannon.Sphere(0.25);
+    this.ballBody = new Cannon.Body({
+      shape: ballShape,
+      position: new Cannon.Vec3(1, 1, 0)
+    });
+    this.world.addBody(this.ballBody);
+
     // Start loading the textures and then go on to load the model after the texture Promises have resolved
     this.texture.load().then(() => {
 
@@ -85,7 +95,7 @@ export default class Main {
       ballMesh.position.set(1, 1, 0.25);
       this.scene.add(ballMesh);
       const boxMaterial = this.material.makePhongMaterial(brickTexture);
-      
+
       const mergedMesh = new THREE.Mesh(wallGeometry, boxMaterial);
       mergedMesh.position.z = 0.5;
       this.scene.add(mergedMesh);
@@ -105,7 +115,7 @@ export default class Main {
     });
     this.gameState = 'initialize';
     // Start render which does not wait for model fully loaded
-    this.render();
+    this.render(Date.now());
   }
   generateSquareMaze(dimension: number) {
     function iterate(field: Array<Array<boolean>>, x: number, y: number) {
@@ -146,26 +156,10 @@ export default class Main {
     return field;
 
   }
-  render() {
-    // Render rStats if Dev
-    // if (Config.isDev && Config.isShowingStats) {
-    //   Stats.start();
-    // }
-
-    // Call render function and pass in created scene and camera
-    
-
-    // rStats has finished determining render call now
-    // if (Config.isDev && Config.isShowingStats) {
-    //   Stats.end();
-    // }
-
-    // Delta time is sometimes needed for certain updates
-    //const delta = this.clock.getDelta();
-    // Call any vendor or module frame updates here
+  render(time: number) {
     TWEEN.update();
-    switch(this.gameState){
-      case 'initialize':{
+    switch (this.gameState) {
+      case 'initialize': {
         this.gameState = 'fade in';
         this.lights.pointLight.intensity = 0;
       }
@@ -177,14 +171,20 @@ export default class Main {
           this.lights.pointLight.intensity = 1.0;
           this.gameState = "play";
         }
-      
+
         break;
-        
+
       }
-      case 'play':{
-         //console.log('play');
-         this.renderer.render(this.scene, this.camera.threeCamera);
-         break; 
+      case 'play': {
+        //console.log('play');
+        this.renderer.render(this.scene, this.camera.threeCamera);
+        if(this.lastTime !== undefined){
+          var dt = (time - this.lastTime) / 1000;
+          this.world.step(this.fixedTimeStep, dt, this.maxSubSteps);
+       }
+       //console.log("Sphere z position: " + this.ballBody.position.z);
+       this.lastTime = time;
+        break;
       }
     }
     //this.controls.threeControls.update();

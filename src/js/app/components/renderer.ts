@@ -4,7 +4,10 @@ import Config from '../../data/config';
 
 // Main webGL renderer class
 export default class Renderer {
-  constructor(scene, container) {
+  scene;
+  container;
+  threeRenderer;
+  constructor(scene: THREE.Scene, container: HTMLElement) {
     // Properties
     this.scene = scene;
     this.container = container;
@@ -38,7 +41,7 @@ export default class Renderer {
     this.threeRenderer.setSize(this.container.offsetWidth, this.container.offsetHeight);
   }
 
-  render(scene, camera) {
+  render(scene: THREE.Scene, camera: THREE.Camera) {
     // Renders scene to canvas target
     this.threeRenderer.render(scene, camera);
   }

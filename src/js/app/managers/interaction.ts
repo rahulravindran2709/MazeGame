@@ -1,10 +1,17 @@
-import Keyboard from '../../utils/keyboard';
+import * as THREE from 'three';
+import Keyboard,{ ALIAS } from '../../utils/keyboard';
 import Helpers from '../../utils/helpers';
 import Config from '../../data/config';
 
 // Manages all input interactions
 export default class Interaction {
-  constructor(renderer, scene, camera, controls) {
+  renderer: THREE.Renderer;
+  scene;
+  camera;
+  controls;
+  timeout: NodeJS.Timeout;
+  keyboard;
+  constructor(renderer: THREE.Renderer, scene: THREE.Scene, camera: THREE.Camera, controls: THREE.OrbitControls) {
     // Properties
     this.renderer = renderer;
     this.scene = scene;
@@ -23,7 +30,7 @@ export default class Interaction {
     this.renderer.domElement.addEventListener('mouseover', (event) => this.onMouseOver(event), false);
 
     // Keyboard events
-    this.keyboard.domElement.addEventListener('keydown', (event) => {
+    this.keyboard.domElement.addEventListener('keydown', (event: KeyboardEvent) => {
       // Only once
       if(event.repeat) {
         return;
@@ -32,22 +39,35 @@ export default class Interaction {
       if(this.keyboard.eventMatches(event, 'escape')) {
         console.log('Escape pressed');
       }
+      if(this.keyboard.eventMatches(event,'left')){
+        console.log('Left pressed');
+      }
+      if(this.keyboard.eventMatches(event,'right')){
+        console.log('Right pressed');
+      }
+      if(this.keyboard.eventMatches(event,'down')){
+        console.log('Down pressed');
+      }
+      
+      if(this.keyboard.eventMatches(event,'up')){
+        console.log('Up pressed');
+      }
     });
   }
 
-  onMouseOver(event) {
+  onMouseOver(event: MouseEvent) {
     event.preventDefault();
 
     Config.isMouseOver = true;
   }
 
-  onMouseLeave(event) {
+  onMouseLeave(event: MouseEvent) {
     event.preventDefault();
 
     Config.isMouseOver = false;
   }
 
-  onMouseMove(event) {
+  onMouseMove(event: MouseEvent) {
     event.preventDefault();
 
     clearTimeout(this.timeout);

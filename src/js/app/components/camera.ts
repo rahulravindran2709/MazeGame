@@ -4,7 +4,8 @@ import Config from '../../data/config';
 
 // Class that creates and updates the main camera
 export default class Camera {
-  constructor(renderer) {
+  threeCamera;
+  constructor(renderer: THREE.WebGLRenderer) {
     const width = renderer.domElement.width;
     const height = renderer.domElement.height;
 
@@ -19,7 +20,7 @@ export default class Camera {
     window.addEventListener('resize', () => this.updateSize(renderer), false);
   }
 
-  updateSize(renderer) {
+  updateSize(renderer: THREE.Renderer) {
     // Update camera aspect ratio with window aspect ratio
     this.threeCamera.aspect = renderer.domElement.width / renderer.domElement.height;
 
