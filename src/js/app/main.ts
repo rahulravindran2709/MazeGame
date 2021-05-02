@@ -35,7 +35,7 @@ export default class Main {
   lights;
   physics;
   ballMesh: THREE.Mesh;
-  path: Array<Array<number>>;
+  path: Array<Array<number>> = [];
   constructor(container: HTMLElement) {
     // Set container property to container element
     this.container = container;
