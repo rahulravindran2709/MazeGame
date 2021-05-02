@@ -8,13 +8,9 @@
 
 /*! ../../utils/orbitControls */
 
-/*! ../components/material */
-
-/*! ../loaders/GLTFLoader */
+/*! ../data/config */
 
 /*! ./../css/app.scss */
-
-/*! ./../data/config */
 
 /*! ./app/main */
 
@@ -26,36 +22,30 @@
 
 /*! ./components/light */
 
+/*! ./components/material */
+
+/*! ./components/physics */
+
 /*! ./components/renderer */
 
-/*! ./data/config */
-
-/*! ./helpers/meshHelper */
-
-/*! ./helpers/stats */
-
-/*! ./managers/datGUI */
-
 /*! ./managers/interaction */
-
-/*! ./material */
-
-/*! ./model/model */
 
 /*! ./model/texture */
 
 /*! ./utils/detector */
 
-/*! ./vertexNormalsHelper */
-
 /*! @tweenjs/tween.js */
+
+/*! THREE */
+
+/*! cannon-es */
 
 /*! es6-promise */
 
 /*! three */
 
 /*!***********************!*\
-  !*** ./src/js/app.js ***!
+  !*** ./src/js/app.ts ***!
   \***********************/
 
 /*!**************************!*\
@@ -63,7 +53,7 @@
   \**************************/
 
 /*!****************************!*\
-  !*** ./src/js/app/main.js ***!
+  !*** ./src/js/app/main.ts ***!
   \****************************/
 
 /*!*******************************!*\
@@ -71,77 +61,57 @@
   \*******************************/
 
 /*!*********************************!*\
-  !*** ./src/js/utils/helpers.js ***!
+  !*** ./src/js/utils/helpers.ts ***!
   \*********************************/
 
 /*!**********************************!*\
-  !*** ./src/js/utils/detector.js ***!
+  !*** ./src/js/utils/detector.ts ***!
   \**********************************/
 
 /*!**********************************!*\
-  !*** ./src/js/utils/keyboard.js ***!
+  !*** ./src/js/utils/keyboard.ts ***!
   \**********************************/
 
-/*!***********************************!*\
-  !*** ./src/js/app/model/model.js ***!
-  \***********************************/
-
 /*!*************************************!*\
-  !*** ./src/js/app/helpers/stats.js ***!
-  \*************************************/
-
-/*!*************************************!*\
-  !*** ./src/js/app/model/texture.js ***!
+  !*** ./src/js/app/model/texture.ts ***!
   \*************************************/
 
 /*!***************************************!*\
-  !*** ./src/js/app/managers/datGUI.js ***!
-  \***************************************/
-
-/*!***************************************!*\
-  !*** ./src/js/utils/orbitControls.js ***!
+  !*** ./src/js/utils/orbitControls.ts ***!
   \***************************************/
 
 /*!****************************************!*\
-  !*** ./src/js/app/components/light.js ***!
+  !*** ./src/js/app/components/light.ts ***!
   \****************************************/
 
 /*!*****************************************!*\
-  !*** ./src/js/app/components/camera.js ***!
+  !*** ./src/js/app/components/camera.ts ***!
   \*****************************************/
 
 /*!******************************************!*\
-  !*** ./src/js/app/helpers/meshHelper.js ***!
-  \******************************************/
-
-/*!******************************************!*\
-  !*** ./src/js/app/loaders/GLTFLoader.js ***!
+  !*** ./src/js/app/components/physics.ts ***!
   \******************************************/
 
 /*!*******************************************!*\
-  !*** ./src/js/app/components/controls.js ***!
+  !*** ./src/js/app/components/controls.ts ***!
   \*******************************************/
 
 /*!*******************************************!*\
-  !*** ./src/js/app/components/geometry.js ***!
+  !*** ./src/js/app/components/geometry.ts ***!
   \*******************************************/
 
 /*!*******************************************!*\
-  !*** ./src/js/app/components/material.js ***!
+  !*** ./src/js/app/components/material.ts ***!
   \*******************************************/
 
 /*!*******************************************!*\
-  !*** ./src/js/app/components/renderer.js ***!
+  !*** ./src/js/app/components/renderer.ts ***!
   \*******************************************/
 
 /*!********************************************!*\
-  !*** ./src/js/app/managers/interaction.js ***!
+  !*** ./src/js/app/managers/interaction.ts ***!
   \********************************************/
 
 /*!*********************************************!*\
-  !*** ./src/js/utils/bufferGeometryUtils.js ***!
+  !*** ./src/js/utils/bufferGeometryUtils.ts ***!
   \*********************************************/
-
-/*!***************************************************!*\
-  !*** ./src/js/app/helpers/vertexNormalsHelper.js ***!
-  \***************************************************/
