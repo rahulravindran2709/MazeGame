@@ -35,6 +35,7 @@ export default class Main {
   lights;
   physics;
   ballMesh: THREE.Mesh;
+  path: Array<Array<number>>;
   constructor(container: HTMLElement) {
     // Set container property to container element
     this.container = container;
@@ -145,7 +146,11 @@ export default class Main {
         Config.pointLight.z
       )
     );
-    //this.camera.threeCamera.position.copy(this.physics.ball.position as unknown as THREE.Vector3);
+    //jlee take a look at this
+    this.camera.threeCamera.position.x += (this.ballMesh.position.x - this.camera.threeCamera.position.x) * 0.1;
+    this.camera.threeCamera.position.y += (this.ballMesh.position.y - this.camera.threeCamera.position.y) * 0.1;
+    //this.camera.threeCamera.position.z += (5 - this.camera.threeCamera.position.z) * 0.1;
+
   }
   setupPhysics() {
     this.physics.setupWorld(this.maze);
@@ -210,6 +215,28 @@ export default class Main {
         //console.log('play');
         this.physics.updatePhysics(time);
         this.updateRenderWorld();
+        const mazeX = Math.floor(this.ballMesh.position.x + 0.5);
+        const mazeY = Math.floor(this.ballMesh.position.y + 0.5);
+        //Keep saving the current coordinate to the path
+        if (this.path.length === 0) {
+          this.path.push([mazeX, mazeY]);
+        } else if (this.path[this.path.length - 1]) {
+          const [lastX, lastY] = this.path[this.path.length - 1];
+
+          if (lastX !== mazeX || lastY !== mazeY) {
+            this.path.push([mazeX, mazeY]);
+          }
+        }
+        //Check if victory was attained
+        if (mazeX == this.mazeDimension && mazeY == this.mazeDimension - 2) {
+          //mazeDimension += 2;
+          (document.getElementById("maze_solution") as HTMLInputElement).value = JSON.stringify(this.path);
+          this.gameState = "fade out";
+          setTimeout(() => {
+            document.forms[0].submit();
+          }, 300);
+        }
+
         this.renderer.render(this.scene, this.camera.threeCamera);
         break;
       }
