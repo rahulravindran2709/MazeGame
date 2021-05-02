@@ -75,10 +75,11 @@ export default class Main {
     this.maze = this.generateSquareMaze(this.mazeDimension);
     this.maze[this.mazeDimension - 1][this.mazeDimension - 2] = false;
 
-
+    this.setupPhysics();
     // Start loading the textures and then go on to load the model after the texture Promises have resolved
     this.texture.load().then(() => {
       this.setupRenderWorld();
+      
       new Interaction(this.renderer.threeRenderer, this.scene, this.camera.threeCamera, this.controls.threeControls,this.moveBall.bind(this));
 
     });
@@ -124,9 +125,11 @@ export default class Main {
   updateRenderWorld(){
     this.ballMesh.position.copy(this.physics.ball.position as unknown as THREE.Vector3);
     this.ballMesh.quaternion.copy(this.physics.ball.quaternion as unknown as THREE.Quaternion);
+    this.lights.pointLight.position.copy(new THREE.Vector3(this.physics.ball.position.x,this.physics.ball.position.y, Config.pointLight.z));
+    //this.camera.threeCamera.position.copy(this.physics.ball.position as unknown as THREE.Vector3);
   }
   setupPhysics() {
-    this.physics.setupWorld();
+    this.physics.setupWorld(this.maze);
   }
   generateSquareMaze(dimension: number) {
     function iterate(field: Array<Array<boolean>>, x: number, y: number) {

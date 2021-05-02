@@ -17,7 +17,7 @@ export default class Light {
   init() {
 
     // Point light
-    this.pointLight = new THREE.PointLight(Config.pointLight.color, Config.pointLight.intensity, Config.pointLight.distance);
+    this.pointLight = new THREE.PointLight(Config.pointLight.color, Config.pointLight.intensity, Config.pointLight.distance, Config.pointLight.decay);
     this.pointLight.position.set(Config.pointLight.x, Config.pointLight.y, Config.pointLight.z);
     this.pointLight.visible = Config.pointLight.enabled;
 
