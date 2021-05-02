@@ -8,8 +8,8 @@ export default class Controls {
   threeControls: THREE.OrbitControls;
   constructor(camera: THREE.Camera, container: HTMLElement) {
     // Orbit controls first needs to pass in THREE to constructor
-    const orbitControls = new THREE.OrbitControls(camera, container);
-    this.threeControls = orbitControls;
+    // const orbitControls = new THREE.OrbitControls(camera, container);
+    // this.threeControls = orbitControls;
 
     //this.init();
   }
