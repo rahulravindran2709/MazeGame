@@ -241,7 +241,7 @@ export default class Main {
         break;
       }
     }
-    this.controls.threeControls.update();
+    //this.controls.threeControls.update();
 
     // RAF
     requestAnimationFrame(this.render.bind(this)); // Bind the main class instead of window object
