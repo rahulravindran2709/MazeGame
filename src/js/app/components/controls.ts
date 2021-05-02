@@ -11,7 +11,7 @@ export default class Controls {
     const orbitControls = new THREE.OrbitControls(camera, container);
     this.threeControls = orbitControls;
 
-    this.init();
+    //this.init();
   }
 
   init() {
