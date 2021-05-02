@@ -240,6 +240,17 @@ export default class Main {
         this.renderer.render(this.scene, this.camera.threeCamera);
         break;
       }
+      case "fade out":
+      //updatePhysicsWorld();
+      //updateRenderWorld();
+      this.lights.pointLight.intensity += 0.1 * (0.0 - this.lights.pointLight.intensity);
+      this.renderer.render(this.scene, this.camera.threeCamera);
+      if (Math.abs(this.lights.pointLight.intensity - 0.0) < 0.1) {
+        this.lights.pointLight.intensity = 0.0;
+        this.renderer.render(this.scene, this.camera.threeCamera);
+        //gameState = "initialize";
+      }
+      break;
     }
     //this.controls.threeControls.update();
 
