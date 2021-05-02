@@ -1,0 +1,6 @@
+build
+node_modules
+.git
+.github
+.vscode
+src/public/**/*.*

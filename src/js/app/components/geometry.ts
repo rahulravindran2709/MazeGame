@@ -1,9 +1,9 @@
-import * as THREE from 'three';
+import * as THREE from "three";
 
-import Material from './material';
-import Config from '../../data/config';
-import { BufferGeometry, Object3D } from 'three';
-import { BufferGeometryUtils } from '../../utils/bufferGeometryUtils';
+import Material from "./material";
+import Config from "../../data/config";
+import { BufferGeometry, Object3D } from "three";
+import { BufferGeometryUtils } from "../../utils/bufferGeometryUtils";
 
 // This helper class can be used to create and then place geometry in the scene
 export default class Geometry {
@@ -18,21 +18,47 @@ export default class Geometry {
   makeSphere(radius: number, widthSegments = 32, heightSegments = 32) {
     this.geo = new THREE.SphereGeometry(radius, widthSegments, heightSegments);
   }
-  makePlane(width: number, height: number, widthSegments = 1, heightSegments = 1) {
-    this.geo = new THREE.PlaneGeometry(width, height, widthSegments, heightSegments);
+  makePlane(
+    width: number,
+    height: number,
+    widthSegments = 1,
+    heightSegments = 1
+  ) {
+    this.geo = new THREE.PlaneGeometry(
+      width,
+      height,
+      widthSegments,
+      heightSegments
+    );
   }
-  makeBox(width: number, height: number, depth: number, widthSegments: number, heightSegments: number, depthSegments: number) {
-    this.geo = new THREE.BoxGeometry(width, height, depth, widthSegments, heightSegments, depthSegments);
+  makeBox(
+    width: number,
+    height: number,
+    depth: number,
+    widthSegments: number,
+    heightSegments: number,
+    depthSegments: number
+  ) {
+    this.geo = new THREE.BoxGeometry(
+      width,
+      height,
+      depth,
+      widthSegments,
+      heightSegments,
+      depthSegments
+    );
   }
   makeBall() {
     this.makeSphere(0.25, 32, 16);
     return this.geo;
   }
   makeGround() {
-    this.makePlane(this.dimension * 10,
+    this.makePlane(
+      this.dimension * 10,
       this.dimension * 10,
       this.dimension,
-      this.dimension);
+      this.dimension
+    );
     return this.geo;
   }
 
@@ -52,7 +78,6 @@ export default class Geometry {
           boxGeometry.applyMatrix4(originHelper.matrixWorld);
           geometries.push(boxGeometry);
         }
-
       }
     }
     const mergedGeom = BufferGeometryUtils.mergeBufferGeometries(geometries);

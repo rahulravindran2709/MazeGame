@@ -2,24 +2,27 @@ import { Material } from "three";
 
 // Provides simple static functions that are used multiple times in the app
 export default class Helpers {
-  static throttle(fn: (...args: any[]) => void, threshhold: number, scope?:any) {
+  static throttle(
+    fn: (...args: any[]) => void,
+    threshhold: number,
+    scope?: any
+  ) {
     threshhold || (threshhold = 250);
     let last: number, deferTimer: NodeJS.Timeout;
 
-    return function() {
+    return function () {
       const context = scope || this;
 
-      const now  = +new Date,
+      const now = +new Date(),
         args = arguments;
 
-      if(last && now < last + threshhold) {
+      if (last && now < last + threshhold) {
         clearTimeout(deferTimer);
-        deferTimer = setTimeout(function() {
+        deferTimer = setTimeout(function () {
           last = now;
           fn.apply(context, args);
         }, threshhold);
-      }
-      else {
+      } else {
         last = now;
         fn.apply(context, args);
       }
@@ -27,28 +30,28 @@ export default class Helpers {
   }
 
   static logProgress() {
-    return function(xhr:ProgressEvent) {
-      if(xhr.lengthComputable) {
-        const percentComplete = xhr.loaded / xhr.total * 100;
+    return function (xhr: ProgressEvent) {
+      if (xhr.lengthComputable) {
+        const percentComplete = (xhr.loaded / xhr.total) * 100;
 
-        console.log(Math.round(percentComplete) + '% downloaded');
+        console.log(Math.round(percentComplete) + "% downloaded");
       }
-    }
+    };
   }
 
   static logError() {
-    return function(xhr: ProgressEvent) {
+    return function (xhr: ProgressEvent) {
       console.error(xhr);
-    }
+    };
   }
 
   static handleColorChange(color: THREE.Color) {
     return (value: string) => {
-      if(typeof value === 'string') {
-        value = value.replace('#', '0x');
+      if (typeof value === "string") {
+        value = value.replace("#", "0x");
       }
 
-      color.setHex(parseInt(value,12));
+      color.setHex(parseInt(value, 12));
     };
   }
 
@@ -56,9 +59,12 @@ export default class Helpers {
     this.needsUpdate(mesh.material, mesh.geometry);
   }
 
-  static needsUpdate(material: THREE.Mesh['material'], geometry: THREE.BufferGeometry) {
-    return function() {
-      if(material instanceof Material){
+  static needsUpdate(
+    material: THREE.Mesh["material"],
+    geometry: THREE.BufferGeometry
+  ) {
+    return function () {
+      if (material instanceof Material) {
         material.side = +material.side; //Ensure number
         material.needsUpdate = true;
       }
@@ -69,7 +75,7 @@ export default class Helpers {
   }
 
   static updateTexture(material: any, materialKey: string, textures: any) {
-    return function(key: string) {
+    return function (key: string) {
       material[materialKey] = textures[key];
       material.needsUpdate = true;
     };
