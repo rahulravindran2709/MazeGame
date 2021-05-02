@@ -1,4 +1,4 @@
-import TWEEN from '@tweenjs/tween.js';
+import TWEEN from "@tweenjs/tween.js";
 
 // This object contains the state of the app
 export default {
@@ -14,16 +14,16 @@ export default {
   easing: TWEEN.Easing.Quadratic.InOut,
   duration: 500,
   texture: {
-    path: './assets/textures/',
+    path: "./assets/textures/",
     imageFiles: [
-      { name: 'grass', image: 'football_grass.png' },
-      {name:'ball',image:'ball.png'},
-      {name: 'wall', image: 'logo.png'},
-    ]
+      { name: "grass", image: "football_grass.png" },
+      { name: "ball", image: "ball.png" },
+      { name: "wall", image: "logo.png" },
+    ],
   },
   fog: {
     color: 0xffffff,
-    near: 0.0008
+    near: 0.0008,
   },
   camera: {
     fov: 60,
@@ -32,7 +32,7 @@ export default {
     aspect: window.innerWidth / window.innerHeight,
     posX: 1,
     posY: 1,
-    posZ: 5
+    posZ: 5,
   },
   controls: {
     autoRotate: false,
@@ -40,7 +40,7 @@ export default {
     rotateSpeed: 0.5,
     zoomSpeed: 0.8,
     minDistance: 10,
-    maxDistance: 600,
+    maxDistance: 6000,
     minPolarAngle: Math.PI / 5,
     maxPolarAngle: Math.PI / 2,
     minAzimuthAngle: -Infinity,
@@ -51,12 +51,12 @@ export default {
     target: {
       x: 0,
       y: 0,
-      z: 0
-    }
+      z: 0,
+    },
   },
   ambientLight: {
     enabled: false,
-    color: 0x404040
+    color: 0x404040,
   },
   directionalLight: {
     enabled: true,
@@ -64,7 +64,7 @@ export default {
     intensity: 0.4,
     x: -75,
     y: 280,
-    z: 150
+    z: 150,
   },
   shadow: {
     enabled: true,
@@ -77,7 +77,7 @@ export default {
     top: 100,
     right: 100,
     bottom: -100,
-    left: -100
+    left: -100,
   },
   pointLight: {
     enabled: true,
@@ -87,7 +87,7 @@ export default {
     decay: 3,
     x: 1,
     y: 1,
-    z: 1.3
+    z: 1.3,
   },
   hemiLight: {
     enabled: true,
@@ -96,24 +96,24 @@ export default {
     intensity: 0.55,
     x: 0,
     y: 0,
-    z: 0
+    z: 0,
   },
-  physics:{
+  physics: {
     world: {
-      gravity:{
+      gravity: {
         x: 0,
         y: 0,
-        z: 0
-      }
+        z: 0,
+      },
     },
     ball: {
-      mass : 1,
+      mass: 1,
       radius: 0.25,
-      initialPosition:{
+      initialPosition: {
         x: 1,
         y: 1,
-        z: 0.25
-      }
-    }
-  }
+        z: 0.25,
+      },
+    },
+  },
 };
