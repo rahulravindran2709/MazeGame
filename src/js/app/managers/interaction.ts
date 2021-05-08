@@ -11,6 +11,10 @@ export default class Interaction {
   controls;
   timeout: NodeJS.Timeout;
   keyboard;
+  rightKey: HTMLButtonElement;
+  leftKey: HTMLButtonElement;
+  upKey: HTMLButtonElement;
+  downKey: HTMLButtonElement;
   constructor(
     renderer: THREE.Renderer,
     scene: THREE.Scene,
@@ -78,8 +82,57 @@ export default class Interaction {
         }
       }
     );
-  }
 
+    //Button events
+    this.upKey = document.querySelector('#upkey');
+    this.leftKey = document.querySelector('#leftkey');
+    this.downKey = document.querySelector('#downkey');
+    this.rightKey = document.querySelector('#rightkey');
+    this.pressAndHold(this.upKey,Helpers.throttle(() => moveHandler('up'),60));
+    this.pressAndHold(this.leftKey,Helpers.throttle(() => moveHandler('left'),60));
+    this.pressAndHold(this.rightKey,Helpers.throttle(() => moveHandler('right'),60));
+    this.pressAndHold(this.downKey,Helpers.throttle(() => moveHandler('down'),60));
+  }
+  requestInterval = (fn: () => void, delay: number) => {
+    var requestAnimFrame = (function () {
+      return (
+        window.requestAnimationFrame ||
+        function (callback: () => void) {
+          return window.setTimeout(callback, 1000 / 60);
+        }
+      );
+    })(),
+      start = new Date().getTime(),
+      handle: { value?: number } = {};
+    function loop() {
+      handle.value = requestAnimFrame(loop);
+      var current = new Date().getTime(),
+        delta = current - start;
+      if (delta >= delay) {
+        //@ts-ignore
+        fn.call();
+        start = new Date().getTime();
+      }
+    }
+    handle.value = requestAnimFrame(loop);
+    return handle;
+  }
+  pressAndHold = (element: HTMLButtonElement, cb: (...args:any[]) => void) => {
+    let timer: { value?: number };
+    const pressingDown =(event: MouseEvent) => {
+      event.preventDefault();
+      timer = this.requestInterval(cb, 1000 / 60);
+    }
+    element.addEventListener("mousedown", pressingDown);
+    element.addEventListener("mouseup", depress);
+    element.addEventListener("touchstart", pressingDown);
+    element.addEventListener("touchend", depress);
+    
+    function depress(event: MouseEvent) {
+      event.preventDefault();
+      cancelAnimationFrame(timer.value);
+    }
+  }
   onMouseOver(event: MouseEvent) {
     event.preventDefault();
 
