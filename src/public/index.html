@@ -6,20 +6,93 @@
   <title>
     Maze game
   </title>
-<script defer src="/js/runtime.bundle.js"></script><script defer src="/js/vendors.bundle.js"></script><script defer src="/js/main.bundle.js"></script><link href="/js/../css/main.css" rel="stylesheet"></head>
+  <script defer src="/js/runtime.bundle.js"></script>
+  <script defer src="/js/vendors.bundle.js"></script>
+  <script defer src="/js/main.bundle.js"></script>
+  <link href="/js/../css/main.css" rel="stylesheet">
+</head>
 
 <body>
+  <style>
+    .w-full{
+      width:100%;
+    }
+    .fixed{
+      position:absolute;
+      bottom:20px;
+      z-index: 100;
+    }
+    .flex{
+      display:flex;
+    }
+    .flex-col{
+      flex-direction: column;
+    }
+    .items-center{
+      align-items: center;
+    }
+    .justify-center{
+      justify-content: center;
+    }
+    .btn-arrow{
+      background-color: aqua;
+      color:white;
+      width:140px;
+      height: 140px;
+      
+    }
+  </style>
   <section id="appContainer" class="main">
     <div id="loading">Loading...</div>
+    <div class="fixed bottom-20 w-full">
+      <div class="mx-auto w-full">
+        <div class="flex flex-col space-y-4 items-center p-5">
+          <button id="upkey"
+            class="btn-arrow bg-gradient-to-b from-gray-900 to-gray-800 p-4 h-14 w-14 flex justify-center items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+              class="w-4 h-4 text-yellow-600" viewBox="0 0 16 16">
+              <path
+                d="m7.247 4.86-4.796 5.481c-.566.647-.106 1.659.753 1.659h9.592a1 1 0 0 0 .753-1.659l-4.796-5.48a1 1 0 0 0-1.506 0z" />
+            </svg>
+          </button>
+          <div class="flex space-x-3">
+            <button id="leftkey"
+              class="btn-arrow bg-gradient-to-b from-gray-900 to-gray-800 p-4 h-14 w-14 flex justify-center items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                class="w-4 h-4 text-yellow-600" viewBox="0 0 16 16">
+                <path
+                  d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z" />
+              </svg>
+            </button>
+            <button id="downkey"
+              class="btn-arrow bg-gradient-to-b from-gray-900 to-gray-800 p-4 h-14 w-14 flex justify-center items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                class="w-4 h-4 text-yellow-600" viewBox="0 0 16 16">
+                <path
+                  d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z" />
+              </svg>
+            </button>
+            <button id="rightkey"
+              class="btn-arrow bg-gradient-to-b from-gray-900 to-gray-800 p-4 h-14 w-14 flex justify-center items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                class="w-4 h-4 text-yellow-600" viewBox="0 0 16 16">
+                <path
+                  d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </section>
   <form>
     <input type="hidden" id="maze_solution" />
   </form>
   
-    <script src="js/rStats.js"></script>
-    <script src="js/rStats.extras.js"></script>
-    <script src="js/dat.gui.min.js"></script>
-    
+  <script src="js/rStats.js"></script>
+  <script src="js/rStats.extras.js"></script>
+  <script src="js/dat.gui.min.js"></script>
+
 </body>
 
 </html>

@@ -18,6 +18,11 @@ import Texture from "./model/texture";
 
 // -- End of imports
 let directions;
+
+//Add global variable to window interface in browser context- typescript is happy now
+declare global {
+  var maze_grid: Array<Array<boolean>>;
+}
 // This class instantiates and ties all of the components together, starts the loading process and renders the main loop
 export default class Main {
   container;
@@ -69,7 +74,7 @@ export default class Main {
     //Instantiate the physics
 
     this.physics = new Physics();
-    this.maze = this.generateSquareMaze(this.mazeDimension);
+    this.maze = window.maze_grid ?? this.generateSquareMaze(this.mazeDimension);
     this.maze[this.mazeDimension - 1][this.mazeDimension - 2] = false;
 
     this.setupPhysics();

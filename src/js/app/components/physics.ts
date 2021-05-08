@@ -74,7 +74,7 @@ export class Physics {
         const ball_wall_cm = new Cannon.ContactMaterial(this.ballMaterial, this.wallMaterial, {
             friction: 0.6,
             //Can increase to make it harder to navigate without touching
-            restitution: 0.7,
+            restitution: 0.3,
             contactEquationStiffness: 1e8,
             contactEquationRelaxation: 3,
         })
@@ -91,8 +91,8 @@ export class Physics {
             mass,
             collisionFilterGroup: this.GROUP1,
             collisionFilterMask: this.GROUP2,
-            linearDamping: 0.5,
-            angularDamping: 0.5,
+            linearDamping: 0.75,
+            angularDamping: 0.75,
             shape: new Cannon.Sphere(radius),
             type: Cannon.BODY_TYPES.DYNAMIC,
         });
