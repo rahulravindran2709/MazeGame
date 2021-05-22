@@ -62,7 +62,7 @@ export class Physics {
             this.ballMaterial,
             {
                 friction: 1,
-                restitution: 0.3,
+                restitution: 0.1,
                 contactEquationStiffness: 1e8,
                 contactEquationRelaxation: 3,
             }
@@ -72,9 +72,9 @@ export class Physics {
         this.world.addContactMaterial(slippery_ground_cm);
         //Contact between ball and wall
         const ball_wall_cm = new Cannon.ContactMaterial(this.ballMaterial, this.wallMaterial, {
-            friction: 0.6,
+            friction: 1,
             //Can increase to make it harder to navigate without touching
-            restitution: 0.3,
+            restitution: 0.1,
             contactEquationStiffness: 1e8,
             contactEquationRelaxation: 3,
         })

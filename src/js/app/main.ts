@@ -18,11 +18,6 @@ import Texture from "./model/texture";
 
 // -- End of imports
 let directions;
-
-//Add global variable to window interface in browser context- typescript is happy now
-declare global {
-  var maze_grid: Array<Array<boolean>>;
-}
 // This class instantiates and ties all of the components together, starts the loading process and renders the main loop
 export default class Main {
   container;
@@ -74,7 +69,7 @@ export default class Main {
     //Instantiate the physics
 
     this.physics = new Physics();
-    this.maze = window.maze_grid ?? this.generateSquareMaze(this.mazeDimension);
+    this.maze = this.generateSquareMaze(this.mazeDimension);
     this.maze[this.mazeDimension - 1][this.mazeDimension - 2] = false;
 
     this.setupPhysics();
@@ -82,6 +77,8 @@ export default class Main {
     this.texture.load().then(() => {
       this.setupRenderWorld();
 
+      console.log("ballmesh", this.ballMesh);
+      this.gameState = "fade in";
       new Interaction(
         this.renderer.threeRenderer,
         this.scene,
@@ -89,6 +86,7 @@ export default class Main {
         this.controls.threeControls,
         this.moveBall.bind(this)
       );
+      // this.lights.pointLight.intensity = 0;
     });
     this.gameState = "initialize";
     // Start render which does not wait for model fully loaded
@@ -114,6 +112,7 @@ export default class Main {
     } = this.texture.textures;
     const ballMaterial = this.material.makePhongMaterial(ballTexture);
     this.ballMesh = new THREE.Mesh(ball, ballMaterial);
+    console.log('Here!!');
     this.ballMesh.position.set(1, 1, 0.25);
     //Adding ball to scene
     this.scene.add(this.ballMesh);
@@ -202,10 +201,13 @@ export default class Main {
     TWEEN.update();
     switch (this.gameState) {
       case "initialize": {
-        this.gameState = "fade in";
+        console.log('initialzing');
+        // this.gameState = "fade in";
         this.lights.pointLight.intensity = 0;
+        break;
       }
       case "fade in": {
+        console.log('fade in');
         const pointLightIntensity = this.lights.pointLight.intensity;
         this.lights.pointLight.intensity += 0.1 * (1.0 - pointLightIntensity);
         this.renderer.render(this.scene, this.camera.threeCamera);
@@ -217,7 +219,7 @@ export default class Main {
         break;
       }
       case "play": {
-        //console.log('play');
+        // console.log('play');
         this.physics.updatePhysics(time);
         this.updateRenderWorld();
         const mazeX = Math.floor(this.ballMesh.position.x + 0.5);

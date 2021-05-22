@@ -56,28 +56,24 @@ export default class Interaction {
       "keydown",
       (event: KeyboardEvent) => {
         // Only once
-        if (event.repeat) {
-          return;
-        }
 
         if (this.keyboard.eventMatches(event, "escape")) {
           console.log("Escape pressed");
         }
         if (this.keyboard.eventMatches(event, "left")) {
-          console.log("Left pressed");
           moveHandler("left");
         }
         if (this.keyboard.eventMatches(event, "right")) {
-          console.log("Right pressed");
+
           moveHandler("right");
         }
         if (this.keyboard.eventMatches(event, "down")) {
-          console.log("Down pressed");
+
           moveHandler("down");
         }
 
         if (this.keyboard.eventMatches(event, "up")) {
-          console.log("Up pressed");
+
           moveHandler("up");
         }
       }
@@ -88,10 +84,10 @@ export default class Interaction {
     this.leftKey = document.querySelector('#leftkey');
     this.downKey = document.querySelector('#downkey');
     this.rightKey = document.querySelector('#rightkey');
-    this.pressAndHold(this.upKey,Helpers.throttle(() => moveHandler('up'),60));
-    this.pressAndHold(this.leftKey,Helpers.throttle(() => moveHandler('left'),60));
-    this.pressAndHold(this.rightKey,Helpers.throttle(() => moveHandler('right'),60));
-    this.pressAndHold(this.downKey,Helpers.throttle(() => moveHandler('down'),60));
+    this.pressAndHold(this.upKey, Helpers.debounce(() => moveHandler('up'),30,true));
+    this.pressAndHold(this.leftKey, Helpers.debounce(() => moveHandler('left'),30,true));
+    this.pressAndHold(this.rightKey, Helpers.debounce(() => moveHandler('right'),30,true));
+    this.pressAndHold(this.downKey, Helpers.debounce(() => moveHandler('down'),30,true));
   }
   requestInterval = (fn: () => void, delay: number) => {
     var requestAnimFrame = (function () {
@@ -117,9 +113,9 @@ export default class Interaction {
     handle.value = requestAnimFrame(loop);
     return handle;
   }
-  pressAndHold = (element: HTMLButtonElement, cb: (...args:any[]) => void) => {
+  pressAndHold = (element: HTMLButtonElement, cb: (...args: any[]) => void) => {
     let timer: { value?: number };
-    const pressingDown =(event: MouseEvent) => {
+    const pressingDown = (event: MouseEvent) => {
       event.preventDefault();
       timer = this.requestInterval(cb, 1000 / 60);
     }
@@ -127,7 +123,7 @@ export default class Interaction {
     element.addEventListener("mouseup", depress);
     element.addEventListener("touchstart", pressingDown);
     element.addEventListener("touchend", depress);
-    
+
     function depress(event: MouseEvent) {
       event.preventDefault();
       cancelAnimationFrame(timer.value);
