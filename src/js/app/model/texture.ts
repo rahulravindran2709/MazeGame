@@ -63,6 +63,7 @@ export default class Texture {
           this.textures[Object.keys(textures[i])[0]] =
             textures[i][Object.keys(textures[i])[0]];
         }
+        console.log('Textures loaded')
       },
       (reason) => console.log(reason)
     );
